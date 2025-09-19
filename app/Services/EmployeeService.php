@@ -21,12 +21,69 @@ class EmployeeService extends BaseService
 {
     use GeneralException;
 
+    public function __construct(private readonly PhoneNumberService $phoneNumberService)
+    {
+        
+    }
+
     /**
      * Configure the Model
      **/
     public function model()
     {
         return User::class;
+    }
+
+    public function create(array $data): User
+    {
+        try {
+            DB::transaction(function () use (&$employee, $data) {
+                $employee = User::create([
+                    'first_name' => $data['first_name'],
+                    'last_name' => $data['last_name'],
+                    'middle_name' => $data['middle_name'] ?? null,
+                    'gender' => $data['gender'],
+                    'birth_date' => $data['birth_date'],
+                    'email' => $data['email'],
+                    'password' => Hash::make($data['password']),
+                    'address' => $data['address'],
+                    'city' => $data['city'],
+                    'state' => $data['state'],
+                    'zip' => $data['zip'],
+                    'phone' => $data['login_phone'],
+                ]);
+                $employee->roles()->attach(Role::ROLE_ID_CARE_WORKER);
+                
+                $employee->employeeProfile()->create([
+                    'employee_status' => $data['status'],
+                    'social_security' => $data['social_security'],
+                    'manual_employee_id' => $data['employee_id'] ?? null,
+                    'hire_date' => $data['hire_date'],
+                    'application_date' => $data['application_date'] ?? null,
+                    'orientation_date' => $data['orientation_date'] ?? null,
+                    'signed_job_description_date' => $data['signed_job_description_date'] ?? null,
+                    'signed_policy_procedure_date' => $data['signed_policy_procedure_date'] ?? null,
+                    'evaluated_assigned_date' => $data['evaluated_assigned_date'] ?? null,
+                    'last_evaluation_date' => $data['last_evaluation_date'] ?? null,
+                    'termination_date' => $data['termination_date'] ?? null,
+                    'number_of_references' => $data['number_of_references'] ?? null,
+                ]);
+
+                if (isset($data['company'])) {
+                    $employee->company()->associate(Company::where('name', $data['company'])->first());
+                    $employee->save();
+                }
+
+                //save phone numbers
+                $this->phoneNumberService->create($employee, $data);
+
+            });
+        } catch (\Exception $e) {
+            Log::error("Error creating employee: {$e->getMessage()}");
+            $this->exception('Failed to create employee. Please try again.', HttpCode::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return $employee->fresh(['employeeProfile', 'phoneNumbers', 'company']);
     }
 
     public function get(array $filters = [], $paginate = true, $pageNumber = 1)

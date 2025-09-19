@@ -25,7 +25,7 @@ class SavePhoneNumberRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'phone_numbers' => ['required_if:type,phone_numbers', 'array'],
+            'phone_numbers' => ['required', 'array'],
             'phone_numbers.*.type' => ['required_with:phone_numbers', 'integer', Rule::in(array_keys(\App\Models\PhoneNumber::MOBILE_TYPES))],
             'phone_numbers.*.phone_number' => ['required_with:phone_numbers', 'string', 'max:20'],
         ];

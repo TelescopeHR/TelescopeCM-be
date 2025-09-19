@@ -16,6 +16,7 @@ Route::middleware('api')->group(function () {
         
         Route::prefix('employee')->group(function(){
             Route::get('/', [EmployeeController::class, 'index']);
+            Route::post('/', [EmployeeController::class, 'store']);
             Route::get('status', [EmployeeController::class, 'status']);
             Route::get('statistics', [EmployeeController::class, 'statistics']);
             Route::get('{employee_id}', [EmployeeController::class, 'show']);

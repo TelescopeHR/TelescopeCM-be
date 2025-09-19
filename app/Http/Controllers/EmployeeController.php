@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateEmployeeRequest;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
 use App\Http\Resources\EmployeeResource;
 use App\Support\ApiResponse;
@@ -47,6 +48,15 @@ class EmployeeController extends Controller
         }
 
         return (new ApiResponse())->success('Success fetching employee', new EmployeeResource($employee, 'detailed'));
+    }
+
+    public function store(CreateEmployeeRequest $request)
+    {
+        $data = $request->all();
+
+        $newEmployee = $this->employeeService->create($data);
+
+        return (new ApiResponse())->success('Success creating employee', new EmployeeResource($newEmployee, 'detailed'));
     }
 
     public function update(UpdateEmployeeRequest $request, $employeeId)

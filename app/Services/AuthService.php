@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 
-class AuthService extends Service
+class AuthService extends BaseService
 {
     use GeneralException;
 

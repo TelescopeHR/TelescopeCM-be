@@ -26,7 +26,9 @@ class PhoneNumberService extends BaseService
             if (isset($data['phone_numbers']) && is_array($data['phone_numbers'])) {
                 
                 //reset phone numbers
-                $user->phoneNumbers()->delete();
+                if($user->phoneNumbers->isNotEmpty()){
+                    $user->phoneNumbers()->delete();
+                }
                 
                 // Add new phone numbers
                 foreach ($data['phone_numbers'] as $phoneData) {

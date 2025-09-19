@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Container\Container as Application;
 
-abstract class Service
+abstract class BaseService
 {
         /**
      * @var Model

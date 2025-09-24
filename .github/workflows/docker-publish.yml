@@ -5,7 +5,7 @@ on:
     branches: [ master ]
 
 env:
-  IMAGE_NAME: "flexmonie-core"
+  IMAGE_NAME: "telescopecm-be"
   LATEST: "latest"
 
 jobs:
@@ -35,8 +35,8 @@ jobs:
         with:
           context: .
           tags: |
-            ${{ secrets.REGISTRY_URL_hazon }}/${{ env.IMAGE_NAME }}:${{ env.LATEST }}
-            ${{ secrets.REGISTRY_URL_hazon }}/${{ env.IMAGE_NAME }}:v${{ github.run_number }}
+            ${{ secrets.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.LATEST }}
+            ${{ secrets.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:v${{ github.run_number }}
           push: true
 
       # - name: Save DigitalOcean kubeconfig with short-lived credentials

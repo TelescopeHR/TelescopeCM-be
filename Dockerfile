@@ -1,4 +1,4 @@
-FROM php:8.2-fpm
+FROM php:8.4-fpm
 
 # Set working directory
 WORKDIR /var/www/html
@@ -23,6 +23,13 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Copy composer files first (to leverage caching)
+COPY composer.json composer.lock ./
+
+# run any extra composer scripts (if needed) and optimize
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts \
+    && php -r "file_exists('bootstrap/cache') || mkdir('bootstrap/cache', 0755, true);"
+
 # Copy existing application directory contents
 COPY . /var/www/html
 
@@ -32,27 +39,22 @@ COPY --chown=www-data:www-data . /var/www/html
 # copy rest of project
 COPY . /app
 
-# run any extra composer scripts (if needed) and optimize
-RUN composer install --no-dev --optimize-autoloader --no-interaction \
- && php -r "file_exists('bootstrap/cache') || mkdir('bootstrap/cache', 0755, true);"
+# Run scripts now that artisan exists
+RUN php artisan package:discover --ansi || true
+
+# Permissions for Laravel
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Copy nginx config
+COPY ./docker/nginx.conf /etc/nginx/nginx.conf
+
+# Copy supervisor config
+COPY ./docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 RUN php artisan config:cache \
  && php artisan route:cache \
  && php artisan view:cache
 
-# make sure permissions for storage & cache
-RUN addgroup -g 1000 appuser \
- && adduser -D -u 1000 -G appuser appuser \
- && chown -R appuser:appuser /var/www/html/storage /var/www/html/bootstrap/cache
-
-# Copy Nginx configuration
-COPY docker/nginx.conf /etc/nginx/sites-available/default
-
-# Copy Supervisor configuration
-COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-# switch to non-root user
-USER appuser
 
 # expose php-fpm port
 EXPOSE 80 443

@@ -25,9 +25,9 @@ spec:
       - name: telescopecm-be
         image: registry.digitalocean.com/quire-registry/telescopecm-be:latest
         imagePullPolicy: Always
-        # envFrom:
-        # - configMapRef:
-        #     name: sawport-admin-config
+        envFrom:
+        - configMapRef:
+            name: laravel-config
         ports:
         - containerPort: 80
         resources:
@@ -41,7 +41,7 @@ kind: Service
 metadata:
   name: telescopecm-be-service
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   ports:
     - name: http
       protocol: TCP

@@ -1,0 +1,64 @@
+name: flexmonie-core
+
+on:
+  push:
+    branches: [ master ]
+
+env:
+  IMAGE_NAME: "telescopecm-be"
+  LATEST: "latest"
+
+jobs:
+  Image-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      # Setup Docker build action
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN_hazon }}
+
+      - name: Log in to DO Container Registry
+        run: doctl registry login --expiry-seconds 1200
+
+      - name: Build image and push to Container Registry
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          tags: |
+            ${{ secrets.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.LATEST }}
+            ${{ secrets.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:v${{ github.run_number }}
+          push: true
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 1200 k8s-1-33-1-do-3-nyc3-telecscope
+
+      - name: Deploy to DigitalOcean Kubernetes
+        run: kubectl apply -f $GITHUB_WORKSPACE/deployment.yml
+
+      - name: Debug Kubernetes Pods
+        run: kubectl get pods
+
+      - name: Run artisan commands (only once)
+        run: |
+          POD=$(kubectl get pods -n flexmonie-ucard -o jsonpath='{.items[?(@.status.phase=="Running")].metadata.name}' | grep flexmonie-core || echo "")
+          if [ -n "$POD" ]; then
+            echo "Running artisan commands on pod: $POD"
+            kubectl exec -n flexmonie-ucard $POD -- /bin/sh -c "
+              php artisan db:seed
+            "
+          else
+            echo "No running telescopecm-be pod found. Skipping artisan commands."
+          fi
+
+      - name: Restart Deployment
+        run: kubectl rollout restart deployment telescopecm-be

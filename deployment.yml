@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telescopecm-be
+  labels:
+    app: telescopecm-be
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: telescopecm-be
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: telescopecm-be
+    spec:
+      # imagePullSecrets:
+      # - name: esaini
+      containers:
+      - name: telescopecm-be
+        image: registry.digitalocean.com/quire-registry/telescopecm-be:latest
+        imagePullPolicy: Always
+        envFrom:
+        - configMapRef:
+            name: laravel-config
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 100m
+          limits:
+            cpu: 100m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: telescopecm-be-service
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    app: telescopecm-be

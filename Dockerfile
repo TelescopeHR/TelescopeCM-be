@@ -43,7 +43,7 @@ COPY . /app
 RUN php artisan package:discover --ansi || true
 
 # Permissions for Laravel
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/storage/logs /var/www/html/bootstrap/cache
 
 # Copy nginx config
 COPY ./docker/nginx.conf /etc/nginx/nginx.conf

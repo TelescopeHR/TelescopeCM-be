@@ -7,6 +7,11 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PhoneNumberController;
 
 Route::middleware('api')->group(function () {
+    //welcome
+    Route::get('/', function(){
+        return response()->json(['message' => 'welcome']);
+    });
+
     Route::post('login', [AuthController::class, 'login']);
     
     Route::middleware(['auth:sanctum'])->group(function(){

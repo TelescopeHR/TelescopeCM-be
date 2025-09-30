@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     nginx \
     supervisor \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions

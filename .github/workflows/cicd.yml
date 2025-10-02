@@ -50,7 +50,7 @@ jobs:
 
       - name: Run artisan migrate with strict error handling
         run: |
-          POD=$(kubectl get pods -n flexmonie-ucard -o jsonpath='{.items[?(@.status.phase=="Running")].metadata.name}' | grep flexmonie-core || echo "")
+          POD=$(kubectl get pods -o jsonpath='{.items[?(@.status.phase=="Running")].metadata.name}' | grep telescopecm-be || echo "")
           if [ -z "$POD" ]; then
             echo "Error: No running telescopecm-be pod found. Skipping artisan commands."
             exit 1
@@ -58,7 +58,7 @@ jobs:
           echo "Running php artisan migrate on pod: $POD"
           for attempt in {1..3}; do
             echo "Migration attempt $attempt of 3"
-            if kubectl exec -n flexmonie-ucard $POD -- /bin/sh -c "
+            if kubectl exec $POD -- /bin/sh -c "
               set -e
               timeout 300 php artisan migrate --force
             "; then
@@ -69,7 +69,7 @@ jobs:
               sleep 5
               if [ $attempt -eq 3 ]; then
                 echo "Error: All migration attempts failed."
-                kubectl exec -n flexmonie-ucard $POD -- /bin/sh -c "php artisan migrate --force" || true
+                kubectl exec $POD -- /bin/sh -c "php artisan migrate --force" || true
                 exit 1
               fi
             fi
@@ -77,7 +77,7 @@ jobs:
 
       - name: Run remaining artisan commands
         run: |
-          POD=$(kubectl get pods -n flexmonie-ucard -o jsonpath='{.items[?(@.status.phase=="Running")].metadata.name}' | grep flexmonie-core || echo "")
+          POD=$(kubectl get pods -o jsonpath='{.items[?(@.status.phase=="Running")].metadata.name}' | grep telescopecm-be || echo "")
           if [ -z "$POD" ]; then
             echo "Error: No running telescopecm-be pod found. Skipping artisan commands."
             exit 1
@@ -85,7 +85,7 @@ jobs:
           echo "Running remaining artisan commands on pod: $POD"
           for attempt in {1..3}; do
             echo "Attempt $attempt of 3 for telescope:install and db:seed"
-            if kubectl exec -n flexmonie-ucard $POD -- /bin/sh -c "
+            if kubectl exec $POD -- /bin/sh -c "
               set -e
               echo 'Running telescope:install...' &&
               timeout 300 php artisan telescope:install &&

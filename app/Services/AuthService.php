@@ -59,16 +59,16 @@ class AuthService extends BaseService
 
     protected function attempt(): User
     {
-        try {
+        // try {
             if ((empty($this->user) || $this->user instanceof Builder) || ! Hash::check($this->data['password'], $this->user->password)) {
                 $this->exception('invalid credentials', HttpCode::HTTP_BAD_REQUEST);
             } else {
                 $this->user->update(['last_login_at' => now()]);
             }
-        } catch (\Throwable $th) {
-            Log::error("Error logging in user {$th->getMessage()}");
-            $this->exception('Error logging in user', HttpCode::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        // } catch (\Throwable $th) {
+        //     Log::error("Error logging in user {$th->getMessage()}");
+        //     $this->exception('Error logging in user', HttpCode::HTTP_INTERNAL_SERVER_ERROR);
+        // }
 
         return $this->user;
     }

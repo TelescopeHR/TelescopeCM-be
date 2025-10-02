@@ -1,4 +1,4 @@
-name: telescopecm-be
+name: flexmonie-core
 
 on:
   push:
@@ -48,6 +48,58 @@ jobs:
       - name: Debug Kubernetes Pods
         run: kubectl get pods
 
+      - name: Clear artisan cache
+        run: |
+          POD=$(kubectl get pods -o jsonpath='{.items[?(@.status.phase=="Running")].metadata.name}' | grep telescopecm-be || echo "")
+          if [ -z "$POD" ]; then
+            echo "Error: No running telescopecm-be pod found. Skipping artisan commands."
+            exit 1
+          fi
+          echo "Running php artisan cache:clear on pod: $POD"
+          for attempt in {1..3}; do
+            echo "Cache clear attempt $attempt of 3"
+            if kubectl exec $POD -- /bin/sh -c "
+              set -e
+              timeout 300 php artisan cache:clear
+            "; then
+              echo "Cache clear successful on attempt $attempt"
+              break
+            else
+              echo "Cache clear failed on attempt $attempt. Retrying in 5 seconds..."
+              sleep 5
+              if [ $attempt -eq 3 ]; then
+                echo "Error: All cache clear attempts failed."
+                exit 1
+              fi
+            fi
+          done
+
+      - name: Clear artisan config cache
+        run: |
+          POD=$(kubectl get pods -o jsonpath='{.items[?(@.status.phase=="Running")].metadata.name}' | grep telescopecm-be || echo "")
+          if [ -z "$POD" ]; then
+            echo "Error: No running telescopecm-be pod found. Skipping artisan commands."
+            exit 1
+          fi
+          echo "Running php artisan config:clear on pod: $POD"
+          for attempt in {1..3}; do
+            echo "Config clear attempt $attempt of 3"
+            if kubectl exec $POD -- /bin/sh -c "
+              set -e
+              timeout 300 php artisan config:clear
+            "; then
+              echo "Config clear successful on attempt $attempt"
+              break
+            else
+              echo "Config clear failed on attempt $attempt. Retrying in 5 seconds..."
+              sleep 5
+              if [ $attempt -eq 3 ]; then
+                echo "Error: All config clear attempts failed."
+                exit 1
+              fi
+            fi
+          done
+
       - name: Run artisan migrate with strict error handling
         run: |
           POD=$(kubectl get pods -o jsonpath='{.items[?(@.status.phase=="Running")].metadata.name}' | grep telescopecm-be || echo "")
@@ -70,35 +122,6 @@ jobs:
               if [ $attempt -eq 3 ]; then
                 echo "Error: All migration attempts failed."
                 kubectl exec $POD -- /bin/sh -c "php artisan migrate --force" || true
-                exit 1
-              fi
-            fi
-          done
-
-      - name: Run remaining artisan commands
-        run: |
-          POD=$(kubectl get pods -o jsonpath='{.items[?(@.status.phase=="Running")].metadata.name}' | grep telescopecm-be || echo "")
-          if [ -z "$POD" ]; then
-            echo "Error: No running telescopecm-be pod found. Skipping artisan commands."
-            exit 1
-          fi
-          echo "Running remaining artisan commands on pod: $POD"
-          for attempt in {1..3}; do
-            echo "Attempt $attempt of 3 for telescope:install and db:seed"
-            if kubectl exec $POD -- /bin/sh -c "
-              set -e
-              echo 'Running telescope:install...' &&
-              timeout 300 php artisan telescope:install &&
-              echo 'Running db:seed...' &&
-              timeout 300 php artisan db:seed
-            "; then
-              echo "Remaining artisan commands successful on attempt $attempt"
-              break
-            else
-              echo "Attempt $attempt failed. Retrying in 5 seconds..."
-              sleep 5
-              if [ $attempt -eq 3 ]; then
-                echo "Error: All attempts to run remaining artisan commands failed."
                 exit 1
               fi
             fi

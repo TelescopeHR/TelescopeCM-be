@@ -1,4 +1,4 @@
-name: flexmonie-core
+name: telescopecm-be
 
 on:
   push:
@@ -48,12 +48,14 @@ jobs:
       - name: Debug Kubernetes Pods
         run: kubectl get pods
 
-      - name: Run artisan commands (only once)
+      - name: Run artisan commands
         run: |
           POD=$(kubectl get pods -n flexmonie-ucard -o jsonpath='{.items[?(@.status.phase=="Running")].metadata.name}' | grep flexmonie-core || echo "")
           if [ -n "$POD" ]; then
             echo "Running artisan commands on pod: $POD"
             kubectl exec -n flexmonie-ucard $POD -- /bin/sh -c "
+              php artisan telescope:install &&
+              php artisan migrate --force &&
               php artisan db:seed
             "
           else

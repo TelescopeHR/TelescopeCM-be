@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: telescopecm-be
-        image: registry.digitalocean.com/quire-registry/telescopecm-be:latest
+        image: registry.digitalocean.com/quire-registry/telescopecm-be@sha256:c5014c773d1d72b1b12486d3e82c21b0725649c57a3efdc0c96b770173652253
         imagePullPolicy: Always
         envFrom:
         - configMapRef:

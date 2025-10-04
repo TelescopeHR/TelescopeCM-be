@@ -53,9 +53,9 @@ COPY ./docker/nginx.conf /etc/nginx/nginx.conf
 # Copy supervisor config
 COPY ./docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-RUN php artisan config:cache \
- && php artisan route:cache \
- && php artisan view:cache
+# RUN php artisan config:cache \
+#  && php artisan route:cache \
+#  && php artisan view:cache
 
 
 # expose php-fpm port

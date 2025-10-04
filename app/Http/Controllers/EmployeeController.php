@@ -22,8 +22,9 @@ class EmployeeController extends Controller
         $paginate = $request->boolean('paginate', false);
         $filters = $request->array('filters');
         $pageNumber = $request->integer('page', 1);
+        $perPage = $request->integer('per_page');
 
-        $employees = $this->employeeService->get($filters, $paginate, $pageNumber);
+        $employees = $this->employeeService->get($filters, $paginate, $pageNumber, $perPage);
 
          if ($paginate) {
             return (new ApiResponse())->paginate("Success fetching employees", $employees);

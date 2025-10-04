@@ -16,13 +16,11 @@ class AuthService extends BaseService
 
     public ?User $user;
     public array $data;
+    public ?User $model;
 
-    /**
-     * Configure the Model
-     **/
-    public function model()
+    public function __construct()
     {
-        return User::class;
+        $this->model = new User();
     }
 
     public function login(array $data): User

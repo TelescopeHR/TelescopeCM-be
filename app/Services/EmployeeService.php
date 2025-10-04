@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Model;
 use App\Http\Resources\EmployeeResource;
+use App\Repository\EmployeeRepository;
+use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -21,24 +23,20 @@ class EmployeeService extends BaseService
 {
     use GeneralException;
 
-    public function __construct(private readonly PhoneNumberService $phoneNumberService)
-    {
-        
-    }
+    protected $model;
 
-    /**
-     * Configure the Model
-     **/
-    public function model()
+    public function __construct(
+        private readonly EmployeeRepository $employeeRepository,
+        private readonly PhoneNumberService $phoneNumberService
+    )
     {
-        return User::class;
     }
 
     public function create(array $data): User
     {
         try {
             DB::transaction(function () use (&$employee, $data) {
-                $employee = User::create([
+                $employee = $this->employeeRepository->create([
                     'first_name' => $data['first_name'],
                     'last_name' => $data['last_name'],
                     'middle_name' => $data['middle_name'] ?? null,
@@ -86,29 +84,18 @@ class EmployeeService extends BaseService
         return $employee->fresh(['employeeProfile', 'phoneNumbers', 'company']);
     }
 
-    public function get(array $filters = [], $paginate = true, $pageNumber = 1)
+    public function get(array $filters = [], bool $paginate = true, int $pageNumber = 1, ?int $perPage=null)
     {
-        $query = $this->model->whereHas('roles', fn($q) => $q->where('role_id', Role::ROLE_ID_CARE_WORKER))
-            ->when(!empty($filters['name']), function ($q) use ($filters) {
-                $q->where(function ($q) use ($filters) {
-                    $q->where('first_name', 'like', '%' . $filters['name'] . '%')
-                        ->orWhere('last_name', 'like', '%' . $filters['name'] . '%');
-                });
-            })
-            ->when(!empty($filters['status']), function ($q) use ($filters) {
-                $q->whereHas('employeeProfile', function ($q) use ($filters) {
-                    $q->whereIn('employee_status', $filters['status']);
-                });
-            })->orderBy('created_at');
+        $query = $this->employeeRepository->getAll($filters);
 
         return $paginate ? $this->paginate($query, function (Model $user) {
             return new EmployeeResource($user);
-        }, $pageNumber, config('env.no_of_paginated_record')) : $query->get();
+        }, $pageNumber, $perPage ?? config('env.no_of_paginated_record')) : $query->get();
     }
 
     public function getStatistics(): array
     {
-        $totalEmployees = $this->model->whereHas('roles', fn($q) => $q->where('role_id', Role::ROLE_ID_CARE_WORKER))->count();
+        $totalEmployees = $this->employeeRepository->getStatistics();
 
         $statusCounts = EmployeeProfile::select('employee_status')
             ->selectRaw('COUNT(*) as count')
@@ -130,9 +117,8 @@ class EmployeeService extends BaseService
 
     public function findById(int $id, array $relations = []): ?User
     {
-        return $this->model
+        return $this->employeeRepository->get('id', $id)
             ->whereHas('roles', fn($q) => $q->where('role_id', Role::ROLE_ID_CARE_WORKER))
-            ->where('id', $id)
             ->with($relations)
             ->first();
     }

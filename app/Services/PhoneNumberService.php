@@ -12,12 +12,11 @@ class PhoneNumberService extends BaseService
 {
     use GeneralException;
 
-    /**
-     * Configure the Model
-     **/
-    public function model()
+    public ?PhoneNumber $model;
+
+    public function __construct()
     {
-        return PhoneNumber::class;
+        $this->model = new PhoneNumber();
     }
 
     public function create(User $user, array $data)

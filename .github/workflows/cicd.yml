@@ -82,24 +82,33 @@ jobs:
             exit 1
           fi
           echo "Running php artisan migrate on pod: $POD"
-          for attempt in {1..3}; do
-            echo "Migration attempt $attempt of 3"
-            if kubectl exec $POD -- /bin/sh -c "
-              set -e
-              timeout 300 php artisan migrate --force
-            "; then
-              echo "Migration successful on attempt $attempt"
-              break
-            else
-              echo "Migration failed on attempt $attempt. Retrying in 5 seconds..."
-              sleep 5
-              if [ $attempt -eq 3 ]; then
-                echo "Error: All migration attempts failed."
-                kubectl exec $POD -- /bin/sh -c "php artisan migrate --force" || true
-                exit 1
+          # Check if tables exist
+          TABLE_CHECK=$(kubectl exec $POD -- /bin/sh -c "
+            set -e
+            php artisan tinker --execute=\"DB::select('SHOW TABLES LIKE ?',['telescope_entries']); DB::select('SHOW TABLES LIKE ?',['telescope_entries_tags']); DB::select('SHOW TABLES LIKE ?',['telescope_monitoring']);\" | grep -c 'telescope'"
+          )
+          if [ "$TABLE_CHECK" -eq 3 ]; then
+            echo "All required telescope tables (telescope_entries, telescope_entries_tags, telescope_monitoring) already exist. Skipping migration."
+          else
+            for attempt in {1..3}; do
+              echo "Migration attempt $attempt of 3"
+              if kubectl exec $POD -- /bin/sh -c "
+                set -e
+                timeout 300 php artisan migrate --force
+              "; then
+                echo "Migration successful on attempt $attempt"
+                break
+              else
+                echo "Migration failed on attempt $attempt. Retrying in 5 seconds..."
+                sleep 5
+                if [ $attempt -eq 3 ]; then
+                  echo "Error: All migration attempts failed."
+                  kubectl exec $POD -- /bin/sh -c "php artisan migrate --force" || true
+                  exit 1
+                fi
               fi
-            fi
-          done
+            done
+          fi
 
       - name: Restart Deployment
         run: kubectl rollout restart deployment telescopecm-be

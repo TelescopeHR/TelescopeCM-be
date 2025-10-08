@@ -1,4 +1,4 @@
-name: telescopecm-be
+name: telescopecmbe
 
 on:
   push:

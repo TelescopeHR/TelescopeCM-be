@@ -23,7 +23,7 @@ class EmployeeResource extends JsonResource
     public function toArray(Request $request): array
     {
         $data =  [
-            'id' => $this->id,
+            'id' => $this->uuid,
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
             'middle_name' => $this->middle_name,
@@ -32,6 +32,8 @@ class EmployeeResource extends JsonResource
             'gender' => $this->gender_text,
             'birth_date' => $this->birthday,
             'employee_status' => EmployeeProfile::STATUSES[$this->employeeProfile?->employee_status] ?? null,
+            'profile_picture' => $this->avatar,
+            'email' => $this->email,
             'created_at' => $this->created_at?->toDateTimeString(), 
         ];
 

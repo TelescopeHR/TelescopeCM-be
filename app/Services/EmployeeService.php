@@ -18,6 +18,7 @@ use App\Repository\EmployeeRepository;
 use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 
 class EmployeeService extends BaseService
 {
@@ -36,6 +37,8 @@ class EmployeeService extends BaseService
     {
         try {
             DB::transaction(function () use (&$employee, $data) {
+                $employee_id = 'EMP'.rand(000000, 999999);
+                
                 $employee = $this->employeeRepository->create([
                     'first_name' => $data['first_name'],
                     'last_name' => $data['last_name'],
@@ -49,13 +52,14 @@ class EmployeeService extends BaseService
                     'state' => $data['state'],
                     'zip' => $data['zip'],
                     'phone' => $data['login_phone'],
+                    'avatar' => $data['profile_picture'] ?? null,
                 ]);
                 $employee->roles()->attach(Role::ROLE_ID_CARE_WORKER);
                 
                 $employee->employeeProfile()->create([
                     'employee_status' => $data['status'],
                     'social_security' => $data['social_security'],
-                    'manual_employee_id' => $data['employee_id'] ?? null,
+                    'manual_employee_id' => $employee_id,
                     'hire_date' => $data['hire_date'],
                     'application_date' => $data['application_date'] ?? null,
                     'orientation_date' => $data['orientation_date'] ?? null,
@@ -67,10 +71,14 @@ class EmployeeService extends BaseService
                     'number_of_references' => $data['number_of_references'] ?? null,
                 ]);
 
+                $company_id = Auth::user()->company_id;
+
                 if (isset($data['company'])) {
-                    $employee->company()->associate(Company::where('name', $data['company'])->first());
-                    $employee->save();
+                    $company_id = $data['company_id'];
                 }
+
+                $employee->company()->associate(Company::where('id', $company_id)->first());
+                $employee->save();
 
                 //save phone numbers
                 $this->phoneNumberService->create($employee, $data);
@@ -86,7 +94,10 @@ class EmployeeService extends BaseService
 
     public function get(array $filters = [], bool $paginate = true, int $pageNumber = 1, ?int $perPage=null)
     {
-        $query = $this->employeeRepository->getAll($filters);
+        $user = Auth::user();
+        $company_id = $user->hasRole(Role::ROLE_COMPANY_ADMIN) ? $user->company_id : null;
+
+        $query = $this->employeeRepository->getAll($filters, $company_id);
 
         return $paginate ? $this->paginate($query, function (Model $user) {
             return new EmployeeResource($user);
@@ -115,9 +126,10 @@ class EmployeeService extends BaseService
         ];
     }
 
-    public function findById(int $id, array $relations = []): ?User
+    public function findById(int|string $id, array $relations = []): ?User
     {
-        return $this->employeeRepository->get('id', $id)
+        $column = is_int($id) ? 'id' : 'uuid';
+        return $this->employeeRepository->get($column, $id)
             ->whereHas('roles', fn($q) => $q->where('role_id', Role::ROLE_ID_CARE_WORKER))
             ->with($relations)
             ->first();

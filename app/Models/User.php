@@ -2,31 +2,32 @@
 
 namespace App\Models;
 
-use App\Services\AddressService;
-use App\Traits\FilterByCompanyTrait;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Carbon\Carbon;
-
-//use PhpJunior\LaravelGlobalSearch\Traits\GlobalSearchable;
-use Fico7489\Laravel\Pivot\Traits\PivotEventTrait;
-use App\Traits\UserTrait;
-use App\Traits\TimestampTrait;
+use App\Models\CarePlan;
 use App\Traits\FileTrait;
-use App\Traits\CaptionTrait;
+use App\Traits\UserTrait;
 use App\Traits\OrderTrait;
 use App\Traits\FilterTrait;
+use Illuminate\Support\Str;
+use App\Traits\CaptionTrait;
+use App\Traits\TimestampTrait;
+use App\Services\AddressService;
 use Laravel\Sanctum\HasApiTokens;
-use App\Models\CarePlan;
+use App\Traits\FilterByCompanyTrait;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+
+//use PhpJunior\LaravelGlobalSearch\Traits\GlobalSearchable;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Fico7489\Laravel\Pivot\Traits\PivotEventTrait;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -64,6 +65,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array
      */
     protected $fillable = [
+        'uuid',
         'first_name',
         'middle_name',
         'last_name',
@@ -755,5 +757,17 @@ class User extends Authenticatable implements MustVerifyEmail
     public function createdUsers(): HasMany
     {
         return $this->hasMany(User::class, 'created_by');
+    }
+
+    /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::creating(function ($user) {
+            $user->uuid = (string) Str::orderedUuid();
+        });
     }
 }

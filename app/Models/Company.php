@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Auth;
 use CompanySetting;
+use Illuminate\Support\Str;
 use App\Traits\CreatedByTrait;
 use Illuminate\Database\Eloquent\Model;
 
@@ -31,6 +32,7 @@ class Company extends BaseModel
      * @var array
      */
     protected $fillable = [
+        'uuid',
         'name',
         'status',
     ];
@@ -106,5 +108,17 @@ class Company extends BaseModel
     public function getStatusBadgeClassAttribute()
     {
         return static::statusBadgeClasses()[$this->status] ?? null;
+    }
+
+    /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::creating(function ($company) {
+            $company->uuid = (string) Str::orderedUuid();
+        });
     }
 }

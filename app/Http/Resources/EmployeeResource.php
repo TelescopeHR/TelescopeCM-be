@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\EmployeeProfile;
 use App\Models\PhoneNumber;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -30,7 +31,7 @@ class EmployeeResource extends JsonResource
             'employee_id' => $this->employeeProfile?->manual_employee_id,
             'phone' => $this->phone,
             'gender' => $this->gender_text,
-            'birth_date' => $this->birthday,
+            'birthday' => Carbon::parse($this->birthday)->format('Y-m-d'),
             'employee_status' => EmployeeProfile::STATUSES[$this->employeeProfile?->employee_status] ?? null,
             'profile_picture' => $this->avatar,
             'email' => $this->email,

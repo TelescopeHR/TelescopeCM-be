@@ -44,7 +44,7 @@ class EmployeeService extends BaseService
                     'last_name' => $data['last_name'],
                     'middle_name' => $data['middle_name'] ?? null,
                     'gender' => $data['gender'],
-                    'birth_date' => $data['birth_date'],
+                    'birthday' => $data['birthday'],
                     'email' => $data['email'],
                     'password' => Hash::make($data['password']),
                     'address' => $data['address'],

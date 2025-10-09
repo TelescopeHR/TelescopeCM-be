@@ -28,7 +28,7 @@ class CreateEmployeeRequest extends BaseRequest
             'last_name' => ['required', 'string', 'max:255'],
             'middle_name' => ['sometimes', 'nullable', 'string', 'max:255'],
             'gender' => ['required', 'integer', 'in:0,1,2'],
-            'birth_date' => ['required', 'date'],
+            'birthday' => ['required', 'date'],
             'status' => ['required', 'integer', Rule::in(array_keys(\App\Models\EmployeeProfile::STATUSES))],
             'profile_picture' => ['sometimes', 'nullable', 'string', 'url'],
             'company_id' => ['sometimes', 'nullable', 'string', 'exists:companies,uuid'],

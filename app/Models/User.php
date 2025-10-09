@@ -45,8 +45,8 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasApiTokens;
 
     const GENDER_NOT_SET = null;
-    const GENDER_MALE = 0;
-    const GENDER_FEMALE = 1;
+    const GENDER_MALE = 1;
+    const GENDER_FEMALE = 2;
 
     const STATUS_BLOCKED = -1;
     const STATUS_NEW = 0;

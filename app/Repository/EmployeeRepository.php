@@ -42,7 +42,7 @@ class EmployeeRepository extends BaseRepository
                 $q->whereHas('employeeProfile', function ($q) use ($filters) {
                     $q->whereIn('employee_status', $filters['status']);
                 });
-            })->orderBy('created_at');
+            })->latest();
     }
 
     public function getStatistics()

@@ -10,6 +10,7 @@ use App\Services\EmployeeService;
 use App\Services\PhoneNumberService;
 use App\Http\Requests\SavePhoneNumberRequest;
 use App\Http\Resources\EmployeeResource;
+use App\Http\Resources\SingleEmployeeResource;
 
 class PhoneNumberController extends Controller
 {
@@ -35,6 +36,6 @@ class PhoneNumberController extends Controller
             return (new ApiResponse())->error('Employee not found', HttpCode::HTTP_NOT_FOUND);
         }
 
-        return (new ApiResponse())->success('Success saving phone numbers', new EmployeeResource($this->phoneNumberService->create($user, $data), 'detailed'));
+        return (new ApiResponse())->success('Success saving phone numbers', new SingleEmployeeResource($this->phoneNumberService->create($user, $data)));
     }
 }

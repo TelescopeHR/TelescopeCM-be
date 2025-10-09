@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateEmployeeRequest;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
 use App\Http\Resources\EmployeeResource;
+use App\Http\Resources\SingleEmployeeResource;
 use App\Support\ApiResponse;
 use Illuminate\Http\Request;
 use App\Services\EmployeeService;
@@ -30,7 +31,7 @@ class EmployeeController extends Controller
             return (new ApiResponse())->paginate("Success fetching employees", $employees);
         }
 
-        return (new ApiResponse())->success('Success fetching employees', EmployeeResource::collection($employees));
+        return (new ApiResponse())->success('Success fetching employees', EmployeeResource::collection($employees, null));
     }
 
     public function statistics(Request $request)
@@ -48,7 +49,7 @@ class EmployeeController extends Controller
             return (new ApiResponse())->error('Employee not found', HttpCode::HTTP_NOT_FOUND);
         }
 
-        return (new ApiResponse())->success('Success fetching employee', new EmployeeResource($employee, 'detailed'));
+        return (new ApiResponse())->success('Success fetching employee', new SingleEmployeeResource($employee));
     }
 
     public function store(CreateEmployeeRequest $request)
@@ -57,7 +58,7 @@ class EmployeeController extends Controller
 
         $newEmployee = $this->employeeService->create($data);
 
-        return (new ApiResponse())->success('Success creating employee', new EmployeeResource($newEmployee, 'detailed'));
+        return (new ApiResponse())->success('Success creating employee', new SingleEmployeeResource($newEmployee));
     }
 
     public function update(UpdateEmployeeRequest $request, $employeeId)
@@ -72,7 +73,7 @@ class EmployeeController extends Controller
 
         $updatedEmployee = $this->employeeService->update($employee, $data);
 
-        return (new ApiResponse())->success('Success updating employee', new EmployeeResource($updatedEmployee, 'detailed'));
+        return (new ApiResponse())->success('Success updating employee', new SingleEmployeeResource($updatedEmployee));
     }
 
     public function status()

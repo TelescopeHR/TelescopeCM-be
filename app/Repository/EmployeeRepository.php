@@ -39,7 +39,7 @@ class EmployeeRepository extends BaseRepository
                 });
             })->when(!empty($filters['employee_id']), function ($q) use ($filters) {
                 $q->whereHas('employeeProfile', function ($q) use ($filters) {
-                    $q->whereIn('manual_employee_id', $filters['employee_id']);
+                    $q->where('manual_employee_id', $filters['employee_id']);
                 });
             })
             ->when(!empty($filters['status']), function ($q) use ($filters) {

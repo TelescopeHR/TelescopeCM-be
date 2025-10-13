@@ -21,17 +21,23 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
         $paginate = $request->boolean('paginate', false);
-        $filters = $request->array('filters');
+        $name = $request->query('name');
+        $employee_id = $request->query('employee_id');
+        $status = $request->integer('status');
         $pageNumber = $request->integer('page', 1);
         $perPage = $request->integer('per_page');
 
-        $employees = $this->employeeService->get($filters, $paginate, $pageNumber, $perPage);
+        $employees = $this->employeeService->get([
+            'name' => $name,
+            'employee_id' => $employee_id,
+            'status' => $status
+        ], $paginate, $pageNumber, $perPage);
 
          if ($paginate) {
             return (new ApiResponse())->paginate("Success fetching employees", $employees);
         }
 
-        return (new ApiResponse())->success('Success fetching employees', EmployeeResource::collection($employees, null));
+        return (new ApiResponse())->success('Success fetching employees', EmployeeResource::collection($employees));
     }
 
     public function statistics(Request $request)

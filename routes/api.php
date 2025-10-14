@@ -26,11 +26,16 @@ Route::middleware('api')->group(function () {
             Route::get('statistics', [EmployeeController::class, 'statistics']);
             Route::get('{employee_id}', [EmployeeController::class, 'show']);
             Route::post('{employee_id}/update', [EmployeeController::class, 'update']);
+            Route::post('{employee_id}/delete', [EmployeeController::class, 'delete']);
         });
 
         Route::prefix('phone-number')->group(function(){
             Route::get('type', [PhoneNumberController::class, 'type']);
             Route::post('{user_id}/update', [PhoneNumberController::class, 'update']);
+        });
+
+        Route::prefix('schedule')->group(function(){
+
         });
     });
 });

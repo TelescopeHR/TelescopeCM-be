@@ -82,6 +82,19 @@ class EmployeeController extends Controller
         return (new ApiResponse())->success('Success updating employee', new SingleEmployeeResource($updatedEmployee));
     }
 
+    public function delete(string $employeeId)
+    {
+        $employee = $this->employeeService->findById($employeeId);
+
+        if (!$employee) {
+            return (new ApiResponse())->error('Employee not found', HttpCode::HTTP_NOT_FOUND);
+        }
+
+        $this->employeeService->delete($employee);
+
+        return (new ApiResponse())->success('Success deleting employee');
+    }
+
     public function status()
     {
         return (new ApiResponse())->success('Success fetching employee statuses', \App\Models\EmployeeProfile::STATUSES);

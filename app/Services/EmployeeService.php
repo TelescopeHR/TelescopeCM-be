@@ -160,6 +160,25 @@ class EmployeeService extends BaseService
         return $employee->fresh(['employeeProfile', 'phoneNumbers', 'company']);
     }
 
+    public function delete(User $employee)
+    {
+        try{
+
+            //delete employee profile
+            $employee->employeeProfile()->delete();
+
+            //delete phone numbers
+            $employee->phoneNumbers()->delete();
+
+            //delete employee
+            $employee->delete();
+            
+        } catch (\Exception $e) {
+            Log::error('Error deleting employee: ' . $e->getMessage());
+            $this->exception('Failed to delete employee. Please try again.');
+        }
+    }
+
     private function updateBiodata(User $employee, array $data)
     {
         $employee->update([

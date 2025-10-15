@@ -73,11 +73,11 @@ class EmployeeService extends BaseService
 
                 $company_id = Auth::user()->company_id;
 
-                if (isset($data['company'])) {
+                if (isset($data['company_id'])) {
                     $company_id = $data['company_id'];
                 }
 
-                $employee->company()->associate(Company::where('id', $company_id)->first());
+                $employee->company()->associate(Company::where('uuid', $company_id)->first());
                 $employee->save();
 
                 //save phone numbers
@@ -154,7 +154,7 @@ class EmployeeService extends BaseService
             });
         } catch (\Exception $e) {
             Log::error('Error updating employee: ' . $e->getMessage());
-            $this->exception('Failed to update employee. Please try again.');
+            $this->exception('Failed to update employee. Please try again.', HttpCode::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return $employee->fresh(['employeeProfile', 'phoneNumbers', 'company']);
@@ -193,12 +193,11 @@ class EmployeeService extends BaseService
 
         $employee->employeeProfile->update([
             'employee_status' => $data['status'],
-            'social_security' => $data['social_security'],
-            'manual_employee_id' => $data['employee_id'],
+            'social_security' => $data['social_security']
         ]);
 
-        if (isset($data['company'])) {
-            $employee->company()->associate(Company::where('name', $data['company'])->first());
+        if (isset($data['company_id'])) {
+            $employee->company()->associate(Company::where('uuid', $data['company_id'])->first());
             $employee->save();
         }
     }

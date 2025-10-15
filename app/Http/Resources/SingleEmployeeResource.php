@@ -31,7 +31,10 @@ class SingleEmployeeResource extends JsonResource
             'email' => $this->email,
             'created_at' => $this->created_at?->toDateTimeString(), 
             'social_security' => $this->employeeProfile?->social_security,
-            'company' => $this->company?->name,
+            'company' => [
+                'id' => $this->company?->uuid,
+                'name' => $this->company?->name
+            ],
             'address' => [
                 'address' => $this->address,
                 'city' => $this->city,

@@ -33,7 +33,7 @@ class UpdateEmployeeRequest extends BaseRequest
             'gender' => ['required_if:type,biodata', 'integer', 'in:0,1,2'],
             'birth_date' => ['required_if:type,biodata', 'date'],
             'status' => ['required_if:type,biodata', 'integer', Rule::in(array_keys(\App\Models\EmployeeProfile::STATUSES))],
-            'company' => ['sometimes', 'nullable', 'string', 'exists:companies,name'],
+            'company_id' => ['sometimes', 'nullable', 'string', 'exists:companies,uuid'],
             'social_security' => ['required_if:type,biodata', 'string', 'max:11'],
             'email' => ['required_if:type,biodata', 'email', 'max:255', Rule::unique('users')->ignore($this->route('employee_id'), 'uuid')],
             'password' => ['sometimes', 'nullable', 'string', 'min:8', 'confirmed'],

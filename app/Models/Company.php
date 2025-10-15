@@ -6,10 +6,13 @@ use Auth;
 use CompanySetting;
 use Illuminate\Support\Str;
 use App\Traits\CreatedByTrait;
+use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Model;
 
 class Company extends BaseModel
 {
+    use HasUuid;
+
     //use CreatedByTrait;
 
     const STATUS_BLOCKED = 0;
@@ -108,17 +111,5 @@ class Company extends BaseModel
     public function getStatusBadgeClassAttribute()
     {
         return static::statusBadgeClasses()[$this->status] ?? null;
-    }
-
-    /**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
-    protected static function booted()
-    {
-        static::creating(function ($company) {
-            $company->uuid = (string) Str::orderedUuid();
-        });
     }
 }

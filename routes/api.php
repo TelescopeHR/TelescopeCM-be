@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\EmployeeScheduleController;
 use App\Http\Controllers\PhoneNumberController;
 
 Route::middleware('api')->group(function () {
@@ -24,18 +25,19 @@ Route::middleware('api')->group(function () {
             Route::post('/', [EmployeeController::class, 'store']);
             Route::get('status', [EmployeeController::class, 'status']);
             Route::get('statistics', [EmployeeController::class, 'statistics']);
-            Route::get('{employee_id}', [EmployeeController::class, 'show']);
-            Route::post('{employee_id}/update', [EmployeeController::class, 'update']);
-            Route::post('{employee_id}/delete', [EmployeeController::class, 'delete']);
+            Route::get('{employee}', [EmployeeController::class, 'show']);
+            Route::post('{employee}/update', [EmployeeController::class, 'update']);
+            Route::post('{employee}/delete', [EmployeeController::class, 'delete']);
+
+            Route::prefix('schedule')->group(function(){
+                Route::get('/{employee}', [EmployeeScheduleController::class, 'index']);
+                Route::get('/details/{schedule}', [EmployeeScheduleController::class, 'detail']);
+            });
         });
 
         Route::prefix('phone-number')->group(function(){
             Route::get('type', [PhoneNumberController::class, 'type']);
-            Route::post('{user_id}/update', [PhoneNumberController::class, 'update']);
-        });
-
-        Route::prefix('schedule')->group(function(){
-
+            Route::post('{user}/update', [PhoneNumberController::class, 'update']);
         });
     });
 });

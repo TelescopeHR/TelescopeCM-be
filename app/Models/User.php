@@ -14,6 +14,7 @@ use App\Traits\TimestampTrait;
 use App\Services\AddressService;
 use Laravel\Sanctum\HasApiTokens;
 use App\Traits\FilterByCompanyTrait;
+use App\Traits\HasUuid;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
@@ -42,7 +43,7 @@ class User extends Authenticatable implements MustVerifyEmail
     // use CaptionTrait;
     // use OrderTrait;
     // use FilterTrait;
-    use HasApiTokens;
+    use HasApiTokens, HasUuid;
 
     const GENDER_NOT_SET = null;
     const GENDER_MALE = 1;
@@ -758,17 +759,5 @@ class User extends Authenticatable implements MustVerifyEmail
     public function createdUsers(): HasMany
     {
         return $this->hasMany(User::class, 'created_by');
-    }
-
-    /**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
-    protected static function booted()
-    {
-        static::creating(function ($user) {
-            $user->uuid = (string) Str::orderedUuid();
-        });
     }
 }

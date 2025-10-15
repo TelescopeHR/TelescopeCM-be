@@ -6,6 +6,7 @@ use App\Http\Requests\CreateEmployeeRequest;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
 use App\Http\Resources\EmployeeResource;
 use App\Http\Resources\SingleEmployeeResource;
+use App\Models\User;
 use App\Support\ApiResponse;
 use Illuminate\Http\Request;
 use App\Services\EmployeeService;
@@ -47,14 +48,8 @@ class EmployeeController extends Controller
         return (new ApiResponse())->success('Success fetching employee statistics', $stats);
     }
 
-    public function show(Request $request, $employeeId)
+    public function show(Request $request, User $employee)
     {
-        $employee = $this->employeeService->findById($employeeId, ['employeeProfile', 'phoneNumbers', 'company']);
-
-        if (!$employee) {
-            return (new ApiResponse())->error('Employee not found', HttpCode::HTTP_NOT_FOUND);
-        }
-
         return (new ApiResponse())->success('Success fetching employee', new SingleEmployeeResource($employee));
     }
 
@@ -67,29 +62,17 @@ class EmployeeController extends Controller
         return (new ApiResponse())->success('Success creating employee', new SingleEmployeeResource($newEmployee));
     }
 
-    public function update(UpdateEmployeeRequest $request, $employeeId)
+    public function update(UpdateEmployeeRequest $request, User $employee)
     {
         $data = $request->validated();
-
-        $employee = $this->employeeService->findById($employeeId);
-
-        if (!$employee) {
-            return (new ApiResponse())->error('Employee not found', HttpCode::HTTP_NOT_FOUND);
-        }
 
         $updatedEmployee = $this->employeeService->update($employee, $data);
 
         return (new ApiResponse())->success('Success updating employee', new SingleEmployeeResource($updatedEmployee));
     }
 
-    public function delete(string $employeeId)
+    public function delete(User $employee)
     {
-        $employee = $this->employeeService->findById($employeeId);
-
-        if (!$employee) {
-            return (new ApiResponse())->error('Employee not found', HttpCode::HTTP_NOT_FOUND);
-        }
-
         $this->employeeService->delete($employee);
 
         return (new ApiResponse())->success('Success deleting employee');

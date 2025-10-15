@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use App\Support\GeneralException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Model;
 use App\Repository\EmployeeScheduleRepository;
+use App\Http\Resources\EmployeeScheduleResource;
 
 class EmployeeScheduleService extends BaseService
 {
@@ -50,5 +53,14 @@ class EmployeeScheduleService extends BaseService
 
             return $schedule;
         });
+    }
+
+    public function getByEmployeeId(User $employee, array $filters = [], bool $paginate = true, int $pageNumber = 1, ?int $perPage=null)
+    {
+        $query = $this->employeeScheduleRepository->findById('care_worker_id', $employee->id)->whereHas('carePlan');
+
+        return $paginate ? $this->paginate($query->latest(), function (Model $schedule) {
+            return new EmployeeScheduleResource($schedule);
+        }, $pageNumber, $perPage ?? config('env.no_of_paginated_record')) : $query->latest()->get();
     }
 }

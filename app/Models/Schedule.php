@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use App\Traits\CreatedByTrait;
+use App\Traits\HasUuid;
 
 class Schedule extends BaseModel
 {
-    use CreatedByTrait;
+    use CreatedByTrait, HasUuid;
 
     const STATUS_INACTIVE = 0;
     const STATUS_ACTIVE = 1;

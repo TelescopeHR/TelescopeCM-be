@@ -30,8 +30,9 @@ Route::middleware('api')->group(function () {
             Route::post('{employee}/delete', [EmployeeController::class, 'delete']);
 
             Route::prefix('schedule')->group(function(){
-                Route::get('/{employee}', [EmployeeScheduleController::class, 'index']);
-                Route::get('/details/{schedule}', [EmployeeScheduleController::class, 'detail']);
+                Route::get('{employee}', [EmployeeScheduleController::class, 'index']);
+                Route::get('details/{schedule}', [EmployeeScheduleController::class, 'detail']);
+                Route::get('visits/{schedule}', [EmployeeScheduleController::class, 'visits']);
             });
         });
 

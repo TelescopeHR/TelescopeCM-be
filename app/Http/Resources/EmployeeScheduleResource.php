@@ -28,7 +28,7 @@ class EmployeeScheduleResource extends JsonResource
             'status' => $this->status_text,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            // 'weekly_schedule' => $this->times,
+            'weekly_schedule' => ScheduleTimeResource::collection($this->times),
             'client' => [
                 'id' => $this->patient?->uuid,
                 'first_name' => $this->patient?->first_name,

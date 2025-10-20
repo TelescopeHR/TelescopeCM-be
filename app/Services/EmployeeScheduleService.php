@@ -3,15 +3,16 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Models\Schedule;
 use App\Models\ScheduleTime;
+use App\Models\ScheduleType;
 use App\Support\GeneralException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use App\Repository\EmployeeScheduleRepository;
 use App\Http\Resources\EmployeeScheduleResource;
-use App\Models\Schedule;
-use App\Models\ScheduleType;
 
 class EmployeeScheduleService extends BaseService
 {
@@ -153,5 +154,23 @@ class EmployeeScheduleService extends BaseService
     public function getTypes(): array
     {
         return ScheduleType::all()->toArray();
+    }
+
+    public function delete(Schedule $schedule)
+    {
+        try{
+
+            // Delete existing schedule times
+            ScheduleTime::where('schedule_id', $schedule->id)->delete();
+
+            // Delete existing visits for this schedule
+            $schedule->visits()->delete();
+            
+            $schedule->delete();
+            
+        } catch (\Exception $e) {
+            Log::error('Error deleting schedule: ' . $e->getMessage());
+            $this->exception('Failed to delete schedule. Please try again.');
+        }
     }
 }

@@ -144,4 +144,11 @@ class EmployeeScheduleController extends Controller
 
         return (new ApiResponse())->success('Schedule updated successfully', new EmployeeScheduleResource($update));
     }
+
+    public function delete(Schedule $schedule)
+    {
+        $this->employeeScheduleService->delete($schedule);
+
+        return (new ApiResponse())->success('Schedule deleted successfully');
+    }
 }

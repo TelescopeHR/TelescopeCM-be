@@ -10,6 +10,16 @@ class ScheduleTime extends BaseModel
 {
     use CreatedByTrait;
 
+    const DAYS_OF_WEEK = [
+        'Sunday',
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+    ];
+
     /**
      * @var array
      */

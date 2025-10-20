@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeScheduleController;
@@ -30,10 +31,17 @@ Route::middleware('api')->group(function () {
             Route::post('{employee}/delete', [EmployeeController::class, 'delete']);
 
             Route::prefix('schedule')->group(function(){
-                Route::get('{employee}', [EmployeeScheduleController::class, 'index']);
+                Route::post('/', [EmployeeScheduleController::class, 'create']);
                 Route::get('details/{schedule}', [EmployeeScheduleController::class, 'detail']);
                 Route::get('visits/{schedule}', [EmployeeScheduleController::class, 'visits']);
+                Route::get('types', [EmployeeScheduleController::class, 'getTypes']);
+                Route::post('update/{schedule}', [EmployeeScheduleController::class, 'update']);
+                Route::get('{employee}', [EmployeeScheduleController::class, 'index']);
             });
+        });
+
+        Route::prefix('client')->group(function(){
+            Route::get('/', [ClientController::class, 'index']);
         });
 
         Route::prefix('phone-number')->group(function(){

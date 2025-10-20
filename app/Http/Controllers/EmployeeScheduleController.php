@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ScheduleRequest;
+use App\Http\Resources\EmployeeScheduleResource;
 use App\Http\Resources\ScheduleVisitResource;
 use Carbon\Carbon;
 use App\Models\User;
@@ -34,7 +36,15 @@ class EmployeeScheduleController extends Controller
             return (new ApiResponse())->paginate('Success fetching schedule', $schedules);
         }
 
-        return (new ApiResponse())->success('Success fetching schedules', $schedules);
+        return (new ApiResponse())->success('Success fetching schedules', EmployeeScheduleResource::collection($schedules));
+    }
+
+    public function create(ScheduleRequest $request)
+    {
+        $data = $request->validated();
+        $schedule = $this->employeeScheduleService->create($data);
+
+        return (new ApiResponse())->success('Schedule created successfully', new EmployeeScheduleResource($schedule));
     }
 
     public function detail(Schedule $schedule)
@@ -119,5 +129,19 @@ class EmployeeScheduleController extends Controller
             'total_verified_hours' => $totalVerified,
             'visits' => ScheduleVisitResource::collection($visits),
         ]);
+    }
+
+    public function getTypes()
+    {
+        $types = $this->employeeScheduleService->getTypes();
+
+        return (new ApiResponse())->success('Success fetching schedule types', $types);
+    }
+
+    public function update(ScheduleRequest $request, Schedule $schedule)
+    {
+        $update = $this->employeeScheduleService->update($schedule, $request->validated());
+
+        return (new ApiResponse())->success('Schedule updated successfully', new EmployeeScheduleResource($update));
     }
 }

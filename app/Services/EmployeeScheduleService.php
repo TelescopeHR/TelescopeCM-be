@@ -3,64 +3,155 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Models\ScheduleTime;
 use App\Support\GeneralException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use App\Repository\EmployeeScheduleRepository;
 use App\Http\Resources\EmployeeScheduleResource;
+use App\Models\Schedule;
+use App\Models\ScheduleType;
 
 class EmployeeScheduleService extends BaseService
 {
     use GeneralException;
 
     public function __construct(
-        private readonly EmployeeScheduleRepository $employeeScheduleRepository
-    ){
-        
-    }
+        private readonly EmployeeScheduleRepository $employeeScheduleRepository,
+        private readonly VisitService $visitService
+    ) {}
 
     public function create(array $data)
     {
         return DB::transaction(function () use ($data) {
-            $scheduleData = $data;
-            $alldayEvent = $data['allDayEvent'] ?? null;
-            $selectedDays = isset($data['selected_days']) && !empty($data['selected_days'])
-                ? array_map('intval', explode(',', $data['selected_days']))
-                : [];
-        
-            unset($scheduleData['week_time_from']);
-            unset($scheduleData['week_time_to']);
-            unset($scheduleData['selected_days']);
-            
-            //if all day event is not null then create and array of selected days 1 to 7
+            $alldayEvent = $data['all_day_event'] ?? false;
+            $days = [
+                'Sunday' => 1,
+                'Monday' => 2,
+                'Tuesday' => 3,
+                'Wednesday' => 4,
+                'Thursday' => 5,
+                'Friday' => 6,
+                'Saturday' => 7
+            ];
+
+            $selectedDays = [];
+            if (isset($data['selected_days']) && is_array($data['selected_days'])) {
+                foreach ($data['selected_days'] as $dayName) {
+                    if (isset($days[$dayName])) {
+                        $selectedDays[] = $days[$dayName];
+                    }
+                }
+            }
+
+            //if all day event is not null then create an array of selected days 1 to 7
             if ($alldayEvent) {
                 $selectedDays = range(1, 7);
-            } 
-            
-            $schedule = $this->employeeScheduleRepository->create($scheduleData);
-          
+            }
+
+            $schedule = $this->employeeScheduleRepository->create([
+                'patient_id' => $data['patient_id'],
+                'care_worker_id' => $data['care_worker_id'],
+                'care_plan_id' => $data['care_plan_id'],
+                'type_id' => $data['type_id'],
+                'date_from' => $data['date_from'],
+                'date_to' => $data['date_to'],
+                'rate' => $data['rate'],
+                'status' => $data['status'],
+                'created_by' => Auth::id(),
+            ]);
+
             foreach ($selectedDays as $day) {
                 ScheduleTime::create([
                     'schedule_id' => $schedule->id,
                     'day_of_week' => $day,
-                    'time_from' => $data['week_time_from'],
-                    'time_to' => $data['week_time_to'],
-                    'created_by' => auth()->id(),
+                    'time_from' => $data['time_from'],
+                    'time_to' => $data['time_to'],
+                    'created_by' => Auth::id(),
                 ]);
             }
+
             // Create visit records for each scheduled day
-            $this->createVisitsForSchedule($schedule, $selectedDays, $data);
+            $this->visitService->createForSchedule($schedule, $selectedDays, $data);
 
             return $schedule;
         });
     }
 
-    public function getByEmployeeId(User $employee, array $filters = [], bool $paginate = true, int $pageNumber = 1, ?int $perPage=null)
+    public function update(Schedule $schedule, array $data)
+    {
+        return DB::transaction(function () use (&$schedule, $data) {
+            $alldayEvent = $data['all_day_event'] ?? false;
+            $days = [
+                'Sunday' => 1,
+                'Monday' => 2,
+                'Tuesday' => 3,
+                'Wednesday' => 4,
+                'Thursday' => 5,
+                'Friday' => 6,
+                'Saturday' => 7
+            ];
+
+            $selectedDays = [];
+            if (isset($data['selected_days']) && is_array($data['selected_days'])) {
+                foreach ($data['selected_days'] as $dayName) {
+                    if (isset($days[$dayName])) {
+                        $selectedDays[] = $days[$dayName];
+                    }
+                }
+            }
+
+            //if all day event is not null then create an array of selected days 1 to 7
+            if ($alldayEvent) {
+                $selectedDays = range(1, 7);
+            }
+
+            $schedule = $this->employeeScheduleRepository->update([
+                'patient_id' => $data['patient_id'],
+                'care_worker_id' => $data['care_worker_id'],
+                'care_plan_id' => $data['care_plan_id'],
+                'type_id' => $data['type_id'],
+                'date_from' => $data['date_from'],
+                'date_to' => $data['date_to'],
+                'rate' => $data['rate'],
+                'status' => $data['status'],
+            ], $schedule->id);
+
+            // Delete existing schedule times
+            ScheduleTime::where('schedule_id', $schedule->id)->delete();
+
+            // Delete existing visits for this schedule (they will be recreated)
+            $schedule->visits()->delete();
+
+            foreach ($selectedDays as $day) {
+                ScheduleTime::create([
+                    'schedule_id' => $schedule->id,
+                    'day_of_week' => $day,
+                    'time_from' => $data['time_from'],
+                    'time_to' => $data['time_to'],
+                    'created_by' => Auth::id(),
+                ]);
+            }
+
+            // Create visit records for each scheduled day
+            $this->visitService->createForSchedule($schedule, $selectedDays, $data);
+
+            return $schedule->refresh();
+        });
+    }
+
+    public function getByEmployeeId(User $employee, array $filters = [], bool $paginate = true, int $pageNumber = 1, ?int $perPage = null)
     {
         $query = $this->employeeScheduleRepository->findById('care_worker_id', $employee->id)->whereHas('carePlan');
 
         return $paginate ? $this->paginate($query->latest(), function (Model $schedule) {
             return new EmployeeScheduleResource($schedule);
         }, $pageNumber, $perPage ?? config('env.no_of_paginated_record')) : $query->latest()->get();
+    }
+
+    public function getTypes(): array
+    {
+        return ScheduleType::all()->toArray();
     }
 }

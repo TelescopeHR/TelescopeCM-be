@@ -46,10 +46,10 @@ class EmployeeScheduleService extends BaseService
                 }
             }
 
-            //if all day event is not null then create an array of selected days 1 to 7
-            if ($alldayEvent) {
-                $selectedDays = range(1, 7);
-            }
+            // //if all day event is not null then create an array of selected days 1 to 7
+            // if ($alldayEvent) {
+            //     $selectedDays = range(1, 7);
+            // }
 
             $schedule = $this->employeeScheduleRepository->create([
                 'patient_id' => $data['patient_id'],

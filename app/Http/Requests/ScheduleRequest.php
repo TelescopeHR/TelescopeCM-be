@@ -50,7 +50,7 @@ class ScheduleRequest extends BaseRequest
         $validated = array_merge(parent::validated(), [
             'patient_id' => $patient->id,
             'care_worker_id' => $careWorker->id,
-            'care_plan_id' => $carePlan->id,
+            'care_plan_id' => $carePlan?->id,
         ]);
 
         return data_get($validated, $key, $default);

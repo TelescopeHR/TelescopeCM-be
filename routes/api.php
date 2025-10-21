@@ -7,6 +7,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeScheduleController;
 use App\Http\Controllers\PhoneNumberController;
+use App\Http\Controllers\VisitController;
 
 Route::middleware('api')->group(function () {
     //welcome
@@ -38,6 +39,11 @@ Route::middleware('api')->group(function () {
                 Route::post('update/{schedule}', [EmployeeScheduleController::class, 'update']);
                 Route::post('delete/{schedule}', [EmployeeScheduleController::class, 'delete']);
                 Route::get('{employee}', [EmployeeScheduleController::class, 'index']);
+            });
+
+            Route::prefix('visit')->group(function(){
+                Route::get('types', [VisitController::class, 'types']);
+                Route::post('create', [VisitController::class, 'create']);
             });
         });
 

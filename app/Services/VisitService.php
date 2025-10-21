@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Http\Resources\ScheduleVisitResource;
 use App\Repository\EmployeeScheduleRepository;
 use App\Http\Resources\EmployeeScheduleResource;
+use App\Models\Visit;
 use Illuminate\Support\Facades\Auth;
 
 class VisitService extends BaseService
@@ -24,8 +25,24 @@ class VisitService extends BaseService
         
     }
 
-    public function create(array $data)
+    public function create(Schedule $schedule, array $data): Visit
     {
+        $timeFrom = $schedule->times->first()?->time_from;
+        $timeOut = $schedule->times->first()?->time_to;
+
+        return $this->visitRepository->create([
+            'client_id' => $schedule->patient_id,
+            'care_worker_id' => $schedule?->care_worker_id,
+            'schedule_id' => $schedule->id,
+            'type' => $data['visit_type'] ?? null,
+            'pay_rate' => $schedule?->rate ?? 0,
+            'date_at' => $data['date'],
+            'time_in' => $timeFrom,
+            'time_out' => $timeOut,
+            'verified_in' => $data['verified_in'] ?? null, 
+            'verified_out' => $data['verified_out'] ?? null, 
+            'created_by' => Auth::id(),
+        ]);
     }
 
     public function createForSchedule(Schedule $schedule, array $selectedDays, array $data)

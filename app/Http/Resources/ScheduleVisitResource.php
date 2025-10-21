@@ -16,6 +16,7 @@ class ScheduleVisitResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'date' => $this->date_at,
             'time_in' => $this->time_in,
             'time_out' => $this->time_out,

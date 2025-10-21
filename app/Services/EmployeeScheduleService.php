@@ -103,10 +103,10 @@ class EmployeeScheduleService extends BaseService
                 }
             }
 
-            //if all day event is not null then create an array of selected days 1 to 7
-            if ($alldayEvent) {
-                $selectedDays = range(1, 7);
-            }
+            // //if all day event is not null then create an array of selected days 1 to 7
+            // if ($alldayEvent) {
+            //     $selectedDays = range(1, 7);
+            // }
 
             $schedule = $this->employeeScheduleRepository->update([
                 'patient_id' => $data['patient_id'],
@@ -149,6 +149,11 @@ class EmployeeScheduleService extends BaseService
         return $paginate ? $this->paginate($query->latest(), function (Model $schedule) {
             return new EmployeeScheduleResource($schedule);
         }, $pageNumber, $perPage ?? config('env.no_of_paginated_record')) : $query->latest()->get();
+    }
+
+    public function findOne(string $id): Schedule
+    {
+        return $this->employeeScheduleRepository->findOne($id);
     }
 
     public function getTypes(): array

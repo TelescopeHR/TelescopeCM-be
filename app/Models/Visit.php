@@ -15,6 +15,13 @@ class Visit extends BaseModel
     const STATUS_ACTIVE = 1;
     const STATUS_COMPLETED = 2;
 
+    //visit types
+    const VISIT_TYPES = [
+        'Employee',
+        'Orientation',
+        'Supervisor'
+    ];
+
     /**
      * @var array
      */

@@ -52,6 +52,7 @@ class EmployeeScheduleService extends BaseService
             // }
 
             $schedule = $this->employeeScheduleRepository->create([
+                'schedule_id' => 'SCH'.rand(000001, 999999),
                 'patient_id' => $data['patient_id'],
                 'care_worker_id' => $data['care_worker_id'],
                 'care_plan_id' => $data['care_plan_id'],

@@ -30,6 +30,7 @@ class Schedule extends BaseModel
         'date_to',
         'rate',
         'status',
+        'schedule_id',
     ];
 
     /**

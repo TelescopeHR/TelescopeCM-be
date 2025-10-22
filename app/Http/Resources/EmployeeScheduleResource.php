@@ -17,6 +17,7 @@ class EmployeeScheduleResource extends JsonResource
     {
         return [
             'id' => $this->uuid,
+            'schedule_id' => $this->schedule_id,
             'type' => [
                 'id' => $this->type?->id,
                 'name' => $this->type?->name

@@ -37,7 +37,7 @@ class EmployeeService extends BaseService
     {
         try {
             DB::transaction(function () use (&$employee, $data) {
-                $employee_id = 'EMP'.rand(000000, 999999);
+                $employee_id = 'EMP'.rand(000001, 999999);
                 
                 $employee = $this->employeeRepository->create([
                     'first_name' => $data['first_name'],

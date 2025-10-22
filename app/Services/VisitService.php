@@ -118,6 +118,15 @@ class VisitService extends BaseService
         }, $pageNumber, $perPage ?? config('env.no_of_paginated_record')) : $query->latest()->get();
     }
 
+    public function getByEmployeeId(User $employee, array $filters = [], bool $paginate = true, int $pageNumber = 1, ?int $perPage=null)
+    {
+        $query = $this->visitRepository->getBy('care_worker_id', $employee->id, $filters);
+
+        return $paginate ? $this->paginate($query->latest(), function (Model $visit) {
+            return new ScheduleVisitResource($visit);
+        }, $pageNumber, $perPage ?? config('env.no_of_paginated_record')) : $query->latest()->get();
+    }
+
     public function delete(Visit $visit): bool
     {
         return $this->visitRepository->delete($visit->id);

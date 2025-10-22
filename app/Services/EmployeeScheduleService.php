@@ -179,4 +179,13 @@ class EmployeeScheduleService extends BaseService
             $this->exception('Failed to delete schedule. Please try again.');
         }
     }
+
+    public function updateStatus(Schedule $schedule, int $status)
+    {
+        $this->employeeScheduleRepository->update([
+            'status' => $status,
+        ], $schedule->id);
+
+        return $schedule->refresh();
+    }
 }

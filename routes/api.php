@@ -38,6 +38,7 @@ Route::middleware('api')->group(function () {
                 Route::get('types', [EmployeeScheduleController::class, 'getTypes']);
                 Route::post('update/{schedule}', [EmployeeScheduleController::class, 'update']);
                 Route::post('delete/{schedule}', [EmployeeScheduleController::class, 'delete']);
+                Route::post('status/update/{schedule}', [EmployeeScheduleController::class, 'updateStatus']);
                 Route::get('{employee}', [EmployeeScheduleController::class, 'index']);
             });
 
@@ -46,6 +47,7 @@ Route::middleware('api')->group(function () {
                 Route::post('/', [VisitController::class, 'create']);
                 Route::post('update/{visit}', [VisitController::class, 'update']);
                 Route::post('delete/{visit}', [VisitController::class, 'delete']);
+                Route::get('{employee}', [VisitController::class, 'index']);
             });
         });
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ScheduleRequest;
+use App\Http\Requests\UpdateScheduleStatusRequest;
 use App\Http\Resources\EmployeeScheduleResource;
 use App\Http\Resources\ScheduleVisitResource;
 use Carbon\Carbon;
@@ -117,16 +118,16 @@ class EmployeeScheduleController extends Controller
         if($paginate){
             return (new ApiResponse())->paginate('Success fetching visits', [
                 'data' => [
-                    'total_scheduled_hours' => $totalScheduled,
-                    'total_verified_hours' => $totalVerified,
+                    'total_scheduled_hours' => round($totalScheduled, 2),
+                    'total_verified_hours' => round($totalVerified, 2),
                     'visits' => $visitsData
                 ], 'pagination' => $visits['pagination']
             ]);
         }
 
         return (new ApiResponse())->success('Success fetching schedule visits', [
-            'total_scheduled_hours' => $totalScheduled,
-            'total_verified_hours' => $totalVerified,
+            'total_scheduled_hours' => round($totalScheduled, 2),
+            'total_verified_hours' => round($totalVerified, 2),
             'visits' => ScheduleVisitResource::collection($visits),
         ]);
     }
@@ -150,5 +151,15 @@ class EmployeeScheduleController extends Controller
         $this->employeeScheduleService->delete($schedule);
 
         return (new ApiResponse())->success('Schedule deleted successfully');
+    }
+
+    public function updateStatus(Schedule $schedule, UpdateScheduleStatusRequest $request)
+    {
+        $data = $request->validated();
+        $status = $data['status'];
+
+        $updatedSchedule = $this->employeeScheduleService->updateStatus($schedule, $status);
+
+        return (new ApiResponse())->success('Schedule status updated successfully', new EmployeeScheduleResource($updatedSchedule));
     }
 }

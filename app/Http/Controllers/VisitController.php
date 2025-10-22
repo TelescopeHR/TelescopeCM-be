@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\VisitRequest;
 use App\Models\Visit;
 use App\Services\EmployeeScheduleService;
 use Illuminate\Http\Request;
@@ -23,7 +24,7 @@ class VisitController extends Controller
         return (new ApiResponse())->success('Visit types fetched successfully', Visit::VISIT_TYPES);
     }
 
-    public function create(Request $request)
+    public function create(VisitRequest $request)
     {
         $data = $request->validated();
         $schedule = $this->employeeScheduleService->findOne($data['schedule_id']);
@@ -33,5 +34,21 @@ class VisitController extends Controller
         return (new ApiResponse())->success('Visit created successfully', $visit);
     }
 
+    public function update(VisitRequest $request, Visit $visit)
+    {
+        $data = $request->validated();
+        $schedule = $this->employeeScheduleService->findOne($data['schedule_id']);
+        $data['schedule_id'] = $schedule->id;
 
+        $updatedVisit = $this->visitService->update($visit, $data);
+
+        return (new ApiResponse())->success('Visit updated successfully', $updatedVisit);
+    }
+
+    public function delete(Visit $visit)
+    {
+        $this->visitService->delete($visit);
+
+        return (new ApiResponse())->success('Visit deleted successfully');
+    }
 }

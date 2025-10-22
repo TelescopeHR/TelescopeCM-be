@@ -49,7 +49,7 @@ abstract class BaseRepository
      */
     public function findOne(string|int $id): ?Model
     {
-        $column = (strlen($id) > 10) ? 'ulid' : 'id';
+        $column = (strlen($id) > 10) ? 'uuid' : 'id';
 
         return $this->findById($column, $id)->first();
     }

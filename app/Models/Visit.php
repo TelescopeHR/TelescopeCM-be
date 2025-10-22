@@ -5,10 +5,11 @@ namespace App\Models;
 use Carbon\Carbon;
 use App\Casts\TimeCast;
 use App\Traits\CreatedByTrait;
+use App\Traits\HasUuid;
 
 class Visit extends BaseModel
 {
-    use CreatedByTrait;
+    use CreatedByTrait, HasUuid;
 
     const STATUS_CANCELED = -1;
     const STATUS_FUTURE = 0;

@@ -30,7 +30,7 @@ class VisitService extends BaseService
         $timeFrom = $schedule->times->first()?->time_from;
         $timeOut = $schedule->times->first()?->time_to;
 
-        return $this->visitRepository->create([
+        return $this->visitRepository->createOrUpdate([
             'client_id' => $schedule->patient_id,
             'care_worker_id' => $schedule?->care_worker_id,
             'schedule_id' => $schedule->id,
@@ -43,6 +43,23 @@ class VisitService extends BaseService
             'verified_out' => $data['verified_out'] ?? null, 
             'created_by' => Auth::id(),
         ]);
+    }
+
+    public function update(Visit $visit, array $data): Visit
+    {
+        $visit = $this->visitRepository->update([
+            'care_worker_id' => $visit->care_worker_id,
+            'schedule_id' => $visit->schedule_id,
+            'type' => $data['visit_type'] ?? $visit->type,
+            'pay_rate' => $data['pay_rate'] ?? $visit->pay_rate,
+            'date_at' => $data['date'] ?? $visit->date_at,
+            'time_in' => $data['time_in'] ?? $visit->time_in,
+            'time_out' => $data['time_out'] ?? $visit->time_out,
+            'verified_in' => $data['verified_in'] ?? $visit->verified_in, 
+            'verified_out' => $data['verified_out'] ?? $visit->verified_out, 
+        ], $visit->id);
+
+        return $visit->refresh();
     }
 
     public function createForSchedule(Schedule $schedule, array $selectedDays, array $data)
@@ -99,6 +116,11 @@ class VisitService extends BaseService
         return $paginate ? $this->paginate($query->latest(), function (Model $visit) {
             return new ScheduleVisitResource($visit);
         }, $pageNumber, $perPage ?? config('env.no_of_paginated_record')) : $query->latest()->get();
+    }
+
+    public function delete(Visit $visit): bool
+    {
+        return $this->visitRepository->delete($visit->id);
     }
     
 }

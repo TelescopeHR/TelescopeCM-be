@@ -27,6 +27,9 @@ class VisitRequest extends BaseRequest
             'date' => ['required', 'date'],
             'schedule_id' => ['required', 'uuid', 'exists:schedules,uuid'],
             'visit_type' => ['required', 'string', Rule::in(Visit::VISIT_TYPES)],
+            'pay_rate' => ['sometimes', 'nullable', 'numeric'],
+            'time_in' => ['sometimes', 'nullable', 'date_format:H:i'],
+            'time_out' => ['sometimes', 'nullable', 'date_format:H:i'],
             'verified_in' => ['sometimes', 'nullable', 'date_format:H:i'],
             'verified_out' => ['sometimes', 'nullable', 'date_format:H:i'],
         ];

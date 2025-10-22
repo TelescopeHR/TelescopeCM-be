@@ -23,4 +23,15 @@ class VisitRepository extends BaseRepository
             ->whereDate('date_at', '<=', $filters['date_to']);
         })->latest();
     }
+
+    public function createOrUpdate(array $data): Visit
+    {
+        return $this->model->updateOrCreate(
+            [
+                'date_at' => $data['date_at'],
+                'schedule_id' => $data['schedule_id'],
+            ],
+            $data
+        );
+    }
 }

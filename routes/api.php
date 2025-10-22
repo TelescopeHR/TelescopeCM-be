@@ -43,7 +43,9 @@ Route::middleware('api')->group(function () {
 
             Route::prefix('visit')->group(function(){
                 Route::get('types', [VisitController::class, 'types']);
-                Route::post('create', [VisitController::class, 'create']);
+                Route::post('/', [VisitController::class, 'create']);
+                Route::post('update/{visit}', [VisitController::class, 'update']);
+                Route::post('delete/{visit}', [VisitController::class, 'delete']);
             });
         });
 

@@ -132,7 +132,7 @@ class EmployeeService extends BaseService
         return $this->employeeRepository->get($column, $id)
             ->whereHas('roles', fn($q) => $q->where('role_id', Role::ROLE_ID_CARE_WORKER))
             ->with($relations)
-            ->first();
+            ->first() ?? $this->exception('Employee not found', HttpCode::HTTP_NOT_FOUND);
     }
 
     public function update(User $employee, array $data): User

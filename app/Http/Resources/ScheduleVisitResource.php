@@ -22,6 +22,23 @@ class ScheduleVisitResource extends JsonResource
             'time_out' => $this->time_out,
             'verified_in' => $this->verified_in,
             'verified_out' => $this->verified_out,
+            'reason' => $this->reason,
+            'pay_rate' => $this->pay_rate,
+            'type' => $this->type,
+            'employee' => [
+                'id' => $this->careWorker?->uuid,
+                'first_name' => $this->careWorker?->first_name,
+                'last_name' => $this->careWorker?->last_name,
+                'full_name' => $this->careWorker?->full_name,
+                'profile_picture' => $this->careWorker?->avatar,
+            ],
+            'client' => [
+                'id' => $this->client?->uuid,
+                'first_name' => $this->client?->first_name,
+                'last_name' => $this->client?->last_name,
+                'full_name' => $this->client?->full_name,
+                'profile_picture' => $this->client?->avatar,
+            ],
             'status' => $this->getStatus($this),
         ];
     }

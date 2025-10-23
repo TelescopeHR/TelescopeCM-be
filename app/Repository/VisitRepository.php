@@ -24,6 +24,21 @@ class VisitRepository extends BaseRepository
         })->latest();
     }
 
+    public function getAll(array $filters = [])
+    {
+        return $this->model
+        ->when(!empty($filters['employee_id']), function ($q) use ($filters) {
+            $q->where('care_worker_id', $filters['employee_id']);
+        })
+        ->when(!empty($filters['client_id']), function ($q) use ($filters) {
+            $q->where('client_id', $filters['client_id']);
+        })
+        ->when((!empty($filters['date_from'] && !empty($filters['date_to']))), function ($q) use ($filters) {
+            $q->whereDate('date_at', '>=', $filters['date_from'])
+            ->whereDate('date_at', '<=', $filters['date_to']);
+        })->latest();
+    }
+
     public function createOrUpdate(array $data): Visit
     {
         return $this->model->updateOrCreate(

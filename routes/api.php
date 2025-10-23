@@ -28,7 +28,6 @@ Route::middleware('api')->group(function () {
             Route::post('/', [EmployeeController::class, 'store']);
             Route::get('status', [EmployeeController::class, 'status']);
             Route::get('statistics', [EmployeeController::class, 'statistics']);
-            Route::get('{employee}', [EmployeeController::class, 'show']);
             Route::post('{employee}/update', [EmployeeController::class, 'update']);
             Route::post('{employee}/delete', [EmployeeController::class, 'delete']);
 
@@ -44,11 +43,11 @@ Route::middleware('api')->group(function () {
             });
 
             Route::prefix('visit')->group(function(){
+                Route::get('/', [VisitController::class, 'index']);
                 Route::get('types', [VisitController::class, 'types']);
                 Route::post('/', [VisitController::class, 'create']);
                 Route::post('update/{visit}', [VisitController::class, 'update']);
                 Route::post('delete/{visit}', [VisitController::class, 'delete']);
-                Route::get('{employee}', [VisitController::class, 'index']);
             });
         });
 
@@ -58,7 +57,7 @@ Route::middleware('api')->group(function () {
                 Route::post('/', [AdminNoteController::class, 'store']);
                 Route::post('update/{note}', [AdminNoteController::class, 'update']);
                 Route::post('delete/{note}', [AdminNoteController::class, 'delete']);
-                Route::get('/{user}', [AdminNoteController::class, 'index']);
+                Route::get('{user}', [AdminNoteController::class, 'index']);
             });
         });
 
@@ -70,5 +69,7 @@ Route::middleware('api')->group(function () {
             Route::get('type', [PhoneNumberController::class, 'type']);
             Route::post('{user}/update', [PhoneNumberController::class, 'update']);
         });
+
+        Route::get('employee/{employee}', [EmployeeController::class, 'show']);
     });
 });

@@ -32,6 +32,7 @@ class VisitRequest extends BaseRequest
             'time_out' => ['sometimes', 'nullable', 'date_format:H:i'],
             'verified_in' => ['sometimes', 'nullable', 'date_format:H:i'],
             'verified_out' => ['sometimes', 'nullable', 'date_format:H:i'],
+            'reason' => ['required', 'string'],
         ];
     }
 }

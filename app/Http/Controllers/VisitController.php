@@ -22,12 +22,14 @@ class VisitController extends Controller
         
     }
 
-    public function index(Request $request, User $employee)
+    public function index(Request $request)
     {
         $totalScheduled = 0;
         $totalVerified = 0;
 
         $filters = [
+            'employee_id' => $request->query('employee_id'),
+            'client_id' => $request->query('client_id'),
             'date_from' => $request->query('date_from'),
             'date_to' => $request->query('date_to'),
         ];
@@ -36,7 +38,7 @@ class VisitController extends Controller
         $pageNumber = $request->integer('page_number');
         $perPage = $request->integer('per_page');
 
-        $visits = $this->visitService->getByEmployeeId($employee, $filters, $paginate, $pageNumber, $perPage);
+        $visits = $this->visitService->get($filters, $paginate, $pageNumber, $perPage);
 
         $visitsData = $paginate ? $visits['data'] : $visits;
 
@@ -99,7 +101,7 @@ class VisitController extends Controller
 
         $visit = $this->visitService->create($schedule, $data);
 
-        return (new ApiResponse())->success('Visit created successfully', $visit);
+        return (new ApiResponse())->success('Visit created successfully', new ScheduleVisitResource($visit));
     }
 
     public function update(VisitRequest $request, Visit $visit)
@@ -110,7 +112,7 @@ class VisitController extends Controller
 
         $updatedVisit = $this->visitService->update($visit, $data);
 
-        return (new ApiResponse())->success('Visit updated successfully', $updatedVisit);
+        return (new ApiResponse())->success('Visit updated successfully', new ScheduleVisitResource($updatedVisit));
     }
 
     public function delete(Visit $visit)

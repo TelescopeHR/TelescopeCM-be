@@ -20,7 +20,9 @@ class VisitService extends BaseService
     use GeneralException;
 
     public function __construct(
-        private readonly VisitRepository $visitRepository
+        private readonly VisitRepository $visitRepository,
+        private readonly EmployeeService $employeeService,
+        private readonly ClientService $clientService,
     ){
         
     }
@@ -41,6 +43,7 @@ class VisitService extends BaseService
             'time_out' => $timeOut,
             'verified_in' => $data['verified_in'] ?? null, 
             'verified_out' => $data['verified_out'] ?? null, 
+            'reason' => $data['reason'] ?? null,
             'created_by' => Auth::id(),
         ]);
     }
@@ -57,6 +60,7 @@ class VisitService extends BaseService
             'time_out' => $data['time_out'] ?? $visit->time_out,
             'verified_in' => $data['verified_in'] ?? $visit->verified_in, 
             'verified_out' => $data['verified_out'] ?? $visit->verified_out, 
+            'reason' => $data['reason'] ?? null,
         ], $visit->id);
 
         return $visit->refresh();
@@ -118,9 +122,17 @@ class VisitService extends BaseService
         }, $pageNumber, $perPage ?? config('env.no_of_paginated_record')) : $query->latest()->get();
     }
 
-    public function getByEmployeeId(User $employee, array $filters = [], bool $paginate = true, int $pageNumber = 1, ?int $perPage=null)
+    public function get(array $filters = [], bool $paginate = true, int $pageNumber = 1, ?int $perPage=null)
     {
-        $query = $this->visitRepository->getBy('care_worker_id', $employee->id, $filters);
+        if(!empty($filters['employee_id'])){
+            $filters['employee_id'] = $this->employeeService->findById($filters['employee_id'])?->id;
+        }
+
+        if(!empty($filters['client_id'])){
+            $filters['client_id'] = $this->clientService->findOne($filters['client_id'])?->id;
+        }
+
+        $query = $this->visitRepository->getAll($filters);
 
         return $paginate ? $this->paginate($query->latest(), function (Model $visit) {
             return new ScheduleVisitResource($visit);

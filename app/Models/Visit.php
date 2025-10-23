@@ -37,6 +37,7 @@ class Visit extends BaseModel
         'time_out',
         'verified_in',
         'verified_out',
+        'reason',
     ];
 
 

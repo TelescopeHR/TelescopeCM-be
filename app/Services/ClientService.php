@@ -39,6 +39,11 @@ class ClientService extends BaseService
 
     // }
 
+    public function findOne(string $clientId): ?User
+    {
+        return $this->clientRepository->findOne($clientId) ?? $this->exception('Client not found.', HttpCode::HTTP_NOT_FOUND);
+    }
+
     public function get(array $filters = [], array $select = [], bool $paginate = true, int $pageNumber = 1, ?int $perPage=null)
     {
         $user = Auth::user();

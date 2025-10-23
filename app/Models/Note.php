@@ -2,23 +2,24 @@
 
 namespace App\Models;
 
+use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Note extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuid;
 
     public const CLIENT_NOTE_TYPES = [
-        1 => 'ATTENDANT COMPLAINT',
-        2 => 'REFUSAL OF SERVICES',
-        3 => 'AGENCY COMPLAINT',
-        4 => 'NON-COMPLIANT',
-        5 => 'CLIENT COMPLIANT'
+        'ATTENDANT COMPLAINT' => 1,
+        'REFUSAL OF SERVICES' => 2,
+        'AGENCY COMPLAINT' => 3,
+        'NON-COMPLIANT' => 4,
+        'CLIENT COMPLIANT' => 5
     ];
 
     public const EMPLOYEE_NOTE_TYPES = [
-        6 => 'TERMINATION',
+        'TERMINATION' => 6,
     ];
 
     protected $fillable = [

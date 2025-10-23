@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use App\Traits\CreatedByTrait;
+use App\Traits\HasUuid;
 
 class ShiftNote extends BaseModel
 {
-    use CreatedByTrait;
+    use CreatedByTrait, HasUuid;
 
     /**
      * @var string

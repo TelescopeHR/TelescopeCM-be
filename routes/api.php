@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminNoteController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
@@ -48,6 +49,16 @@ Route::middleware('api')->group(function () {
                 Route::post('update/{visit}', [VisitController::class, 'update']);
                 Route::post('delete/{visit}', [VisitController::class, 'delete']);
                 Route::get('{employee}', [VisitController::class, 'index']);
+            });
+        });
+
+        Route::prefix('note')->group(function(){
+            Route::prefix('admin')->group(function(){
+                Route::get('types', [AdminNoteController::class, 'types']);
+                Route::post('/', [AdminNoteController::class, 'store']);
+                Route::post('update/{note}', [AdminNoteController::class, 'update']);
+                Route::post('delete/{note}', [AdminNoteController::class, 'delete']);
+                Route::get('/{user}', [AdminNoteController::class, 'index']);
             });
         });
 

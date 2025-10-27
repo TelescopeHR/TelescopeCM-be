@@ -22,7 +22,7 @@ class ScheduleVisitResource extends JsonResource
             'time_out' => $this->time_out,
             'verified_in' => $this->verified_in,
             'verified_out' => $this->verified_out,
-            'reason' => $this->reason,
+            'reason' => $this->visitReason,
             'pay_rate' => $this->pay_rate,
             'type' => $this->type,
             'employee' => [
@@ -40,6 +40,8 @@ class ScheduleVisitResource extends JsonResource
                 'profile_picture' => $this->client?->avatar,
             ],
             'status' => $this->getStatus($this),
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 

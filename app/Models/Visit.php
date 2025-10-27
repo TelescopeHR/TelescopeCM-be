@@ -126,6 +126,11 @@ class Visit extends BaseModel
         return $this->hasMany(VisitTimeEntry::class);
     }
 
+    public function visitReason()
+    {
+        return $this->hasOne(VisitReason::class, 'code', 'reason');
+    }
+
     /**
      * @param $query
      * @param $status

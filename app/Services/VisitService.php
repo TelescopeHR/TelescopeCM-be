@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Http\Resources\ScheduleVisitResource;
 use App\Repository\EmployeeScheduleRepository;
 use App\Http\Resources\EmployeeScheduleResource;
+use App\Models\VisitReason;
 
 class VisitService extends BaseService
 {
@@ -141,6 +142,11 @@ class VisitService extends BaseService
         return $paginate ? $this->paginate($query->latest(), function (Model $visit) {
             return new ScheduleVisitResource($visit);
         }, $pageNumber, $perPage ?? config('env.no_of_paginated_record')) : $query->latest()->get();
+    }
+
+    public function getReasons()
+    {
+        return VisitReason::all();
     }
 
     public function delete(Visit $visit): bool

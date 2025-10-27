@@ -94,6 +94,11 @@ class VisitController extends Controller
         return (new ApiResponse())->success('Visit types fetched successfully', Visit::VISIT_TYPES);
     }
 
+    public function reasons()
+    {
+        return (new ApiResponse())->success('Visit reasons fetched successfully', $this->visitService->getReasons());
+    }
+
     public function create(VisitRequest $request)
     {
         $data = $request->validated();

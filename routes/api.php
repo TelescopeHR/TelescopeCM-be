@@ -48,6 +48,7 @@ Route::middleware('api')->group(function () {
         Route::prefix('visit')->group(function(){
             Route::get('/', [VisitController::class, 'index']);
             Route::get('types', [VisitController::class, 'types']);
+             Route::get('reasons', [VisitController::class, 'reasons']);
             Route::post('/', [VisitController::class, 'create']);
             Route::post('update/{visit}', [VisitController::class, 'update']);
             Route::post('delete/{visit}', [VisitController::class, 'delete']);

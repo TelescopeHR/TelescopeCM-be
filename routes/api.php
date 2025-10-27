@@ -41,14 +41,16 @@ Route::middleware('api')->group(function () {
                 Route::post('status/update/{schedule}', [EmployeeScheduleController::class, 'updateStatus']);
                 Route::get('{employee}', [EmployeeScheduleController::class, 'index']);
             });
+        });
 
-            Route::prefix('visit')->group(function(){
-                Route::get('/', [VisitController::class, 'index']);
-                Route::get('types', [VisitController::class, 'types']);
-                Route::post('/', [VisitController::class, 'create']);
-                Route::post('update/{visit}', [VisitController::class, 'update']);
-                Route::post('delete/{visit}', [VisitController::class, 'delete']);
-            });
+        Route::get('schedule', [EmployeeScheduleController::class, 'all']);
+
+        Route::prefix('visit')->group(function(){
+            Route::get('/', [VisitController::class, 'index']);
+            Route::get('types', [VisitController::class, 'types']);
+            Route::post('/', [VisitController::class, 'create']);
+            Route::post('update/{visit}', [VisitController::class, 'update']);
+            Route::post('delete/{visit}', [VisitController::class, 'delete']);
         });
 
         Route::prefix('note')->group(function(){

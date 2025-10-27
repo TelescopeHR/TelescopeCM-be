@@ -24,9 +24,15 @@ class VisitRepository extends BaseRepository
         })->latest();
     }
 
-    public function getAll(array $filters = [])
+    public function getAll(array $filters = [], $company_id = null)
     {
-        return $this->model
+        $filterByCompany = !empty($company_id);
+
+        return $this->model->when($filterByCompany, function ($query) use ($company_id) {
+            $query->whereHas('careWorker', function ($q) use ($company_id) {
+                $q->where('company_id', $company_id);
+            });
+        })
         ->when(!empty($filters['employee_id']), function ($q) use ($filters) {
             $q->where('care_worker_id', $filters['employee_id']);
         })

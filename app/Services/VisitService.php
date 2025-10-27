@@ -3,17 +3,18 @@
 namespace App\Services;
 
 use Carbon\Carbon;
+use App\Models\Role;
 use App\Models\User;
+use App\Models\Visit;
 use App\Models\Schedule;
 use App\Support\GeneralException;
 use Illuminate\Support\Facades\DB;
 use App\Repository\VisitRepository;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use App\Http\Resources\ScheduleVisitResource;
 use App\Repository\EmployeeScheduleRepository;
 use App\Http\Resources\EmployeeScheduleResource;
-use App\Models\Visit;
-use Illuminate\Support\Facades\Auth;
 
 class VisitService extends BaseService
 {
@@ -124,6 +125,9 @@ class VisitService extends BaseService
 
     public function get(array $filters = [], bool $paginate = true, int $pageNumber = 1, ?int $perPage=null)
     {
+        $user = Auth::user();
+        $company_id = $user->hasRole(Role::ROLE_COMPANY_ADMIN) ? $user->company_id : null;
+
         if(!empty($filters['employee_id'])){
             $filters['employee_id'] = $this->employeeService->findById($filters['employee_id'])?->id;
         }
@@ -132,7 +136,7 @@ class VisitService extends BaseService
             $filters['client_id'] = $this->clientService->findOne($filters['client_id'])?->id;
         }
 
-        $query = $this->visitRepository->getAll($filters);
+        $query = $this->visitRepository->getAll($filters, $company_id);
 
         return $paginate ? $this->paginate($query->latest(), function (Model $visit) {
             return new ScheduleVisitResource($visit);

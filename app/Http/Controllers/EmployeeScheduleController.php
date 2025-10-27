@@ -40,6 +40,13 @@ class EmployeeScheduleController extends Controller
         return (new ApiResponse())->success('Success fetching schedules', EmployeeScheduleResource::collection($schedules));
     }
 
+    public function all()
+    {
+        $schedules = $this->employeeScheduleService->getAll();
+
+        return (new ApiResponse())->success('Success fetching all schedules', EmployeeScheduleResource::collection($schedules));
+    }
+
     public function create(ScheduleRequest $request)
     {
         $data = $request->validated();

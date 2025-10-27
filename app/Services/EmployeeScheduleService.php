@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Role;
 use App\Models\User;
 use App\Models\Schedule;
 use App\Models\ScheduleTime;
@@ -150,6 +151,14 @@ class EmployeeScheduleService extends BaseService
         return $paginate ? $this->paginate($query->latest(), function (Model $schedule) {
             return new EmployeeScheduleResource($schedule);
         }, $pageNumber, $perPage ?? config('env.no_of_paginated_record')) : $query->latest()->get();
+    }
+
+    public function getAll()
+    {
+        $user = Auth::user();
+        $company_id = $user->hasRole(Role::ROLE_COMPANY_ADMIN) ? $user->company_id : null;
+
+        return $this->employeeScheduleRepository->getAll([], $company_id);
     }
 
     public function findOne(string $id): Schedule

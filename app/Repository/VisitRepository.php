@@ -7,7 +7,7 @@ use App\Models\Visit;
 
 class VisitRepository extends BaseRepository
 {
-     /**
+    /**
      * Configure the Model
      **/
     public function model()
@@ -18,10 +18,10 @@ class VisitRepository extends BaseRepository
     public function getBy(string $field, string $value, array $filters = [])
     {
         return $this->model->where($field, $value)
-        ->when((!empty($filters['date_from'] && !empty($filters['date_to']))), function ($q) use ($filters) {
-            $q->whereDate('date_at', '>=', $filters['date_from'])
-            ->whereDate('date_at', '<=', $filters['date_to']);
-        })->latest();
+            ->when((!empty($filters['date_from'] && !empty($filters['date_to']))), function ($q) use ($filters) {
+                $q->whereDate('date_at', '>=', $filters['date_from'])
+                    ->whereDate('date_at', '<=', $filters['date_to']);
+            })->latest();
     }
 
     public function getAll(array $filters = [], $company_id = null)
@@ -33,16 +33,31 @@ class VisitRepository extends BaseRepository
                 $q->where('company_id', $company_id);
             });
         })
-        ->when(!empty($filters['employee_id']), function ($q) use ($filters) {
-            $q->where('care_worker_id', $filters['employee_id']);
-        })
-        ->when(!empty($filters['client_id']), function ($q) use ($filters) {
-            $q->where('client_id', $filters['client_id']);
-        })
-        ->when((!empty($filters['date_from'] && !empty($filters['date_to']))), function ($q) use ($filters) {
-            $q->whereDate('date_at', '>=', $filters['date_from'])
-            ->whereDate('date_at', '<=', $filters['date_to']);
-        })->orderBy('updated_at', 'desc');
+            ->when(!empty($filters['search']), function ($q) use ($filters) {
+                $searchTerm = $filters['search'];
+                $q->where(function ($q) use ($searchTerm) {
+                    $q->whereHas('careWorker', function ($q) use ($searchTerm) {
+                        $q->where('first_name', 'like', '%' . $searchTerm . '%')
+                            ->orWhere('last_name', 'like', '%' . $searchTerm . '%')
+                            ->orWhereHas('employeeProfile', function ($newQuery) use ($searchTerm) {
+                                $newQuery->where('manual_employee_id', 'like', '%' . $searchTerm . '%');
+                            });
+                    })->orWhereHas('client', function ($q) use ($searchTerm) {
+                        $q->where('first_name', 'like', '%' . $searchTerm . '%')
+                            ->orWhere('last_name', 'like', '%' . $searchTerm . '%');
+                    });
+                });
+            })
+            ->when(!empty($filters['employee_id']), function ($q) use ($filters) {
+                $q->where('care_worker_id', $filters['employee_id']);
+            })
+            ->when(!empty($filters['client_id']), function ($q) use ($filters) {
+                $q->where('client_id', $filters['client_id']);
+            })
+            ->when((!empty($filters['date_from'] && !empty($filters['date_to']))), function ($q) use ($filters) {
+                $q->whereDate('date_at', '>=', $filters['date_from'])
+                    ->whereDate('date_at', '<=', $filters['date_to']);
+            })->orderBy('updated_at', 'desc');
     }
 
     public function createOrUpdate(array $data): Visit

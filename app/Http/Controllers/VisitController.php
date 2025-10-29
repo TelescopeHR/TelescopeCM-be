@@ -28,6 +28,7 @@ class VisitController extends Controller
         $totalVerified = 0;
 
         $filters = [
+            'search' => $request->query('search'),
             'employee_id' => $request->query('employee_id'),
             'client_id' => $request->query('client_id'),
             'date_from' => $request->query('date_from'),

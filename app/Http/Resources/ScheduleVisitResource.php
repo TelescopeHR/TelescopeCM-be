@@ -39,6 +39,10 @@ class ScheduleVisitResource extends JsonResource
                 'full_name' => $this->client?->full_name,
                 'profile_picture' => $this->client?->avatar,
             ],
+            'schedule' => [
+                'id' => $this->schedule?->uuid,
+                'schedule_id' => $this->schedule?->schedule_id,
+            ],
             'status' => $this->getStatus($this),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

@@ -7,6 +7,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeScheduleController;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\PhoneNumberController;
 use App\Http\Controllers\VisitController;
 
@@ -66,6 +67,13 @@ Route::middleware('api')->group(function () {
 
         Route::prefix('client')->group(function(){
             Route::get('/', [ClientController::class, 'index']);
+        });
+
+        Route::prefix('file')->group(function(){
+            Route::post('create/{user}', [FileController::class, 'store']);
+            Route::post('update/{file}', [FileController::class, 'update']);
+            Route::post('delete/{file}', [FileController::class, 'delete']);
+            Route::get('{user}', [FileController::class, 'index']);
         });
 
         Route::prefix('phone-number')->group(function(){

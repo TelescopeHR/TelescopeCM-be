@@ -42,6 +42,10 @@ class ScheduleVisitResource extends JsonResource
             'schedule' => [
                 'id' => $this->schedule?->uuid,
                 'schedule_id' => $this->schedule?->schedule_id,
+                'care_plan' => [
+                    'id' => $this->schedule?->carePlan?->id,
+                    'care_needs' => $this->schedule?->carePlan?->care_needs ? explode(',', $this->schedule?->carePlan?->care_needs) : null,
+                ],
             ],
             'status' => $this->getStatus($this),
             'created_at' => $this->created_at,

@@ -9,6 +9,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeScheduleController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\PhoneNumberController;
+use App\Http\Controllers\ShiftNoteController;
 use App\Http\Controllers\VisitController;
 
 Route::middleware('api')->group(function () {
@@ -74,6 +75,14 @@ Route::middleware('api')->group(function () {
             Route::post('update/{file}', [FileController::class, 'update']);
             Route::post('delete/{file}', [FileController::class, 'delete']);
             Route::get('{user}', [FileController::class, 'index']);
+        });
+
+         Route::prefix('employee-note')->group(function(){
+            Route::post('create/{user}', [ShiftNoteController::class, 'store']);
+            Route::post('update/{note}', [ShiftNoteController::class, 'update']);
+            Route::post('delete/{note}', [ShiftNoteController::class, 'delete']);
+            Route::get('mood-types', [ShiftNoteController::class, 'moodTypes']);
+            Route::get('{user}', [ShiftNoteController::class, 'index']);
         });
 
         Route::prefix('phone-number')->group(function(){

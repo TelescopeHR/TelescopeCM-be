@@ -34,7 +34,7 @@ class EmployeeController extends Controller
             'status' => $status
         ], $paginate, $pageNumber, $perPage);
 
-         if ($paginate) {
+        if ($paginate) {
             return (new ApiResponse())->paginate("Success fetching employees", $employees);
         }
 

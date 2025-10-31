@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Visit;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class ShiftNoteSeeder extends Seeder
 {
@@ -16,7 +17,9 @@ class ShiftNoteSeeder extends Seeder
      */
     public function run(): void
     {
-        $visits = Visit::limit(10)->get();
+        DB::table('shift_notes')->truncate();
+        
+        $visits = Visit::all();
 
         if ($visits->isNotEmpty()) {
             $visits->each(function ($visit) {
